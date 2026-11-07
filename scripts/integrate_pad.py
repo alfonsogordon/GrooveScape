@@ -260,6 +260,15 @@ app=app.replace(old_encoder, '''        } else if (k == EN_SELECT) {
                     if (gs_track == 1 && knob == 0) gs_bass_voice.cutoff = 0.015f + (float)*v*0.003f;
                     if (gs_track == 2 && knob == 0) gs_drum_voice.pattern = (uint8_t)(*v >= 50);
                 }
+                if (gs_track == 0 && gs_page == 2 && gs_page_num == 0) {
+                    /* Motion page: gentle pitch drift rate (K1) and depth (K2). */
+                    if (knob == 0 || knob == 1) {
+                        float glide = 0.25f + (float)gs_knobs[0][2][0][0]*.12f;
+                        float depth = (float)gs_knobs[0][2][0][1]/100.f;
+                        gs_pad *pads[8] = {&gs_voice,&gs_fading_voice,&gs_melody,&gs_melody_fading,&gs_chord[0],&gs_chord[1],&gs_chord_fading[0],&gs_chord_fading[1]};
+                        for(int n=0;n<8;n++) pads[n]->glide_sec = glide * (1.f + depth);
+                    }
+                }
                 if (gs_page == 8 && gs_page_num == 1) {
                     if (knob == 0) gs_track_mute[gs_track] = *v >= 50;
                     if (knob == 1) gs_track_solo[gs_track] = *v >= 50;
