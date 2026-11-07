@@ -59,7 +59,8 @@ jobs:
           git add -f native
           if ! git diff --cached --quiet; then
             git commit -m "Publish tested GrooveScape FM1 browser emulator [skip ci]"
-            git push origin HEAD:main
+            git pull --rebase origin main
+          git push origin HEAD:main
           fi
       - name: Upload emulator artifact
         if: success()
