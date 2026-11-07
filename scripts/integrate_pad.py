@@ -98,17 +98,17 @@ assert app.count(old)==1
 app=app.replace(old,'void app_init(void)\n{\n    gs_pad_init(&gs_voice);\n    gs_pad_init(&gs_fading_voice);\n    gs_pad_init(&gs_melody);\n    for (int i=0;i<2;i++) { gs_pad_init(&gs_chord[i]); gs_pad_init(&gs_chord_fading[i]); }\n    gs_bass_init(&gs_bass_voice);')
 # Physical keyboard: white notes, black chord triggers, last black latch.
 app=app.replace('            note_on(note, v);', '''            if (gs_track != 2) {
-                gs_chord_select = (k==1 || k==3 || k==5 || k==8 || k==10 || k==13);
-                if (k == 15) { gs_latch = !gs_latch; app_say("CHORD LATCH", gs_latch ? "ON" : "OFF"); }
+                gs_chord_select = ((note % 12)==1 || (note % 12)==3 || (note % 12)==6 || (note % 12)==8 || (note % 12)==10);
+                if (k == 25) { gs_latch = !gs_latch; app_say("CHORD LATCH", gs_latch ? "ON" : "OFF"); }
                 else note_on(note, v);
             }''')
-app=app.replace('            note_off(note);', '''            if (k == 1 || k == 3 || k == 5 || k == 8 || k == 10 || k == 13) {
+app=app.replace('            note_off(note);', '''            if ((note % 12)==1 || (note % 12)==3 || (note % 12)==6 || (note % 12)==8 || (note % 12)==10) {
                 if (!gs_latch && gs_track == 0) {
                     gs_pad_note(&gs_voice, 0.0f, 0);
                     for (int i=0;i<2;i++) gs_pad_note(&gs_chord[i], 0.0f, 0);
                     gs_last_chord = -1;
                 }
-            } else if (k != 15) note_off(note);''')
+            } else if (k != 25) note_off(note);''')
 # The pad track is always ToneScape V2. PRESET selects one of its original\n# 16 environments, never an alternative synth engine. ALGO adjusts intensity.
 old='        } else if (k == EN_PRESET) {\n            set.wave ^= 1u;\n            set_dirty = 1;\n            app_say("WAVE", WAVE_NAME[set.wave]);'
 assert app.count(old)==1
@@ -153,13 +153,13 @@ app=app.replace('        } else if (k == EN_ALGO) {', '''        } else if (k ==
         } else if (k == EN_K1) {''')
 # Four physical encoders follow the selected screen, with separate page values.
 # K1 on TRACKS continues to control the real ToneScape intensity.
-app=app.replace('static int gs_tempo = 90;', 'static int gs_tempo = 90;\nstatic int gs_knobs[10][4][4];')
+app=app.replace('static int gs_tempo = 90;', 'static int gs_tempo = 90;\nstatic int gs_knobs[4][10][4][4];')
 app=app.replace('        } else if (k == EN_K1) {', '''        } else if (k >= EN_K1 && k <= EN_K4) {
             unsigned knob = (unsigned)(k - EN_K1);
             if (gs_page == 0 && gs_track == 0 && knob == 0) {''')
 app=app.replace('            app_say("TONESCAPE INT", t);', '''            app_say("TONESCAPE INT", t);
             } else {
-                int *v = &gs_knobs[gs_page][gs_page_num][knob];
+                int *v = &gs_knobs[gs_track][gs_page][gs_page_num][knob];
                 *v += e;
                 if (*v < 0) *v = 0;
                 if (*v > 100) *v = 100;
@@ -219,7 +219,7 @@ app=app.replace(old, '''    if (gs_page == 0) {
         cv_text(14, 67, &FONT_XS, labels[gs_page][gs_page_num], C_WHITE);
         for (i = 0; i < 4; i++) {
             char val[12];
-            int_text(gs_knobs[gs_page][gs_page_num][i], val);
+            int_text(gs_knobs[gs_track][gs_page][gs_page_num][i], val);
             cv_text(14 + (int32_t)i * 56, 94, &FONT_XS, ENC_NAME[EN_K1 + i], C_GRAY);
             cv_text(14 + (int32_t)i * 56, 109, &FONT_XS, val, track_color[gs_track]);
         }
@@ -240,7 +240,7 @@ app=app.replace('static void note_on(int32_t note, uint32_t vel)\n{', 'static vo
 # Keep the native screen and audio environment synchronized at boot.
 # In particular, resetting the DSP must not leave a stale UI selection.
 # Initialise scale editor to actual ToneScape defaults rather than zeroed placeholders.
-app=app.replace('    gs_bass_init(&gs_bass_voice);', '    gs_bass_init(&gs_bass_voice);\n    gs_knobs[4][0][0] = 9; gs_knobs[4][0][1] = 0; gs_knobs[4][0][2] = 100;')
+app=app.replace('    gs_bass_init(&gs_bass_voice);', '    gs_bass_init(&gs_bass_voice);\n    gs_knobs[0][4][0][0] = 9; gs_knobs[0][4][0][1] = 0; gs_knobs[0][4][0][2] = 100;')
 app=app.replace('    gs_pad_init(&gs_voice);', '    gs_pad_key = -1; gs_bass_key = -1;\n    gs_env_index = 0;\n    gs_intensity_percent = 35;\n    gs_pad_init(&gs_voice);\n    gs_pad_environment(&gs_voice, gs_env_index, 0.35f);')
 # The template only supports BLE when configured; keep all Bluetooth paths
 # off in this unverified native prototype to avoid hardware crash regressions.
