@@ -62,7 +62,19 @@ app=app.replace(old,'''    voice_note = note;
             gs_pad_note(active[i], 440.0f*fm_exp2f((float)(notes[i]-69)/12.0f), 1);
         }
         gs_pad_key = note;
-    } else if (gs_track == 0) {\n        gs_pad_note(&gs_melody, 440.0f*fm_exp2f((float)(note-69)/12.0f), 1);\n    } else if (gs_track == 1) {
+    } else if (gs_track == 0) {
+        static const int major_scale[7] = {0,2,4,5,7,9,11};
+        static const int minor_scale[7] = {0,2,3,5,7,8,10};
+        const int *scale = gs_minor ? minor_scale : major_scale;
+        int relative = (note - gs_root) % 12;
+        if (relative < 0) relative += 12;
+        int degree = 0, nearest = 100;
+        for (int i=0;i<7;i++) {
+            int delta = relative > scale[i] ? relative-scale[i] : scale[i]-relative;
+            if (delta < nearest) { nearest=delta; degree=i; }
+        }
+        int locked = note + scale[degree] - relative;
+        gs_pad_note(&gs_melody, 440.0f*fm_exp2f((float)(locked-69)/12.0f), 1);\n    } else if (gs_track == 1) {
         gs_bass_key = note;
         gs_bass_note(&gs_bass_voice, 440.0f*fm_exp2f((float)(note-69)/12.0f), 1);
     }''')
