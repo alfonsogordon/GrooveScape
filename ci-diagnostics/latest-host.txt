@@ -1,42 +1,35 @@
-Commit: 44a981eda16700e93064efdeba472794b62353f8
-Host stage status: failure
-Run: 42425382403
+Commit: 11961ee547a09e6bbce8cd8d6e5f3e678defcd44
+Host stage status: success
+Run: 42425998732
 DSP test log (last 120 lines):
-firmware/audio/pad_dsp.c: In function ‘gs_pad_render’:
-firmware/audio/pad_dsp.c:85:38: error: stray ‘\’ in program
-   85 |   if (p->gate || p->env > 0.00005f) {\n  for(unsigned v=0;v<4;v++){
-      |                                      ^
-firmware/audio/pad_dsp.c:85:39: error: statement with no effect [-Werror=unused-value]
-   85 |   if (p->gate || p->env > 0.00005f) {\n  for(unsigned v=0;v<4;v++){
-      |                                       ^
-firmware/audio/pad_dsp.c:85:40: error: expected ‘;’ before ‘for’
-   85 |   if (p->gate || p->env > 0.00005f) {\n  for(unsigned v=0;v<4;v++){
-      |                                        ^ ~~~
-      |                                        ;
-firmware/audio/pad_dsp.c:106:4: error: stray ‘\’ in program
-  106 |   }\n  left*=.50f;
-      |    ^
-firmware/audio/pad_dsp.c:106:5: error: statement with no effect [-Werror=unused-value]
-  106 |   }\n  left*=.50f;
-      |     ^
-firmware/audio/pad_dsp.c:106:6: error: expected ‘;’ before ‘left’
-  106 |   }\n  left*=.50f;
-      |      ^ ~~~~
-      |      ;
-firmware/audio/pad_dsp.c:83:22: error: unused variable ‘pans’ [-Werror=unused-variable]
-   83 |   static const float pans[4]={-0.72f,0.64f,-0.27f,0.32f};
-      |                      ^~~~
-firmware/audio/pad_dsp.c:82:22: error: unused variable ‘ratios’ [-Werror=unused-variable]
-   82 |   static const float ratios[4]={0.997f,1.0f,1.003f,0.5f};
-      |                      ^~~~~~
-firmware/audio/pad_dsp.c:75:15: error: unused variable ‘s’ [-Werror=unused-variable]
-   75 |  const float *s=spec[p->environment%16u];
-      |               ^
-firmware/audio/pad_dsp.c: At top level:
-firmware/audio/pad_dsp.c:23:14: error: ‘gs_texture’ defined but not used [-Werror=unused-function]
-   23 | static float gs_texture(float phase,const float *s,float intensity,float seed,const float *weights,const float *odds){
-      |              ^~~~~~~~~~
-cc1: all warnings being treated as errors
+DSP benchmark: 200 x 256 frames, CPU 237.34 ms, avg 1.187 ms/block, deadline 5.805 ms/block (host only)\nPASS: 44.1k stereo pad; peak=545890, wash tail=1824364774\nPASS: native bass, peak=1705858
 Integration log (last 120 lines):
+Generated /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape. Build with: /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/tools/build.py /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape --host
+BLE disabled; prototype ID. DO NOT FLASH hardware.
 Host build log (last 120 lines):
+In file included from /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/lib/touch.c:6,
+                 from /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/host/plat_host.c:1636:
+/home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/lib/sense.c: In function ‘sense_pressure’:
+/home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/lib/sense.c:228:33: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  228 |         rel = k->dland > k->d ? k->dland - k->d : 0u;
+      |                                 ^~~~~~~~~~~~~~~
+/home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/lib/sense.c:231:34: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  231 |         rel = k->v > k->floor_ ? k->v - k->floor_ : 0u;
+      |                                  ^~~~~~~~~~~~~~~~
+font T: BarlowSemiCondensed-SemiBold.ttf 10px h 12, digit adv 5, 3600 B
+font XS: BarlowSemiCondensed-SemiBold.ttf 12px h 15, digit adv 6, 7005 B
+font S: BarlowSemiCondensed-Medium.ttf 15px h 16, digit adv 7, 8576 B
+font B: BarlowSemiCondensed-Bold.ttf 15px h 16, digit adv 8, 8752 B
+font M: BarlowSemiCondensed-SemiBold.ttf 23px h 24, digit adv 12, 11832 B
+font L: BarlowSemiCondensed-Bold.ttf 31px h 32, digit adv 16, 19776 B
+font set barlow: 60782 B (approx)
+words: 3 own + 51 common -> /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape/web/words/95a41ce197.json (1059 B)
+host     /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape/build/host/groovescape_host
 Host test log (last 120 lines):
+  ok note == 60
+  ok note == -1
+  ok octave == 1
+  ok note == 60
+  ok peak -34.4 dBFS (min -42)
+  ok note == -1
+host: 4948 ms simulated, 42 blits, render 11.2% of real time (host CPU)
