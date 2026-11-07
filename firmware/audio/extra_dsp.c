@@ -18,6 +18,10 @@ float sparkle=sinf(TAU*p->phase*4.01f)*(.10f+.25f*p->brightness);
 float out=(sh*.5f+sparkle)*p->env*master*950000.f;add(lr,i,out);
 }}
 void gs_drums_init(gs_drums *d){memset(d,0,sizeof *d);d->rng=0xC017A12u;d->kick=0.8f;d->snare=0.4f;d->hat=.0f;d->kick=0.f;d->snare=0.f;d->kick_steps[0]=0x0101u;d->snare_steps[0]=0x1010u;d->hat_steps[0]=0x4444u;d->kick_steps[1]=0x0101u;d->snare_steps[1]=0x0100u;d->hat_steps[1]=0x0404u;}
+void gs_drums_hit(gs_drums *d,unsigned instrument,float velocity){
+float v=cl(velocity,0.f,1.f);
+switch(instrument%4u){case 0:d->kick=v;break;case 1:d->snare=v;break;case 2:d->hat=v;break;default:d->snare=v*.5f;d->hat=v*.6f;break;}
+}
 void gs_drums_mix(gs_drums *d,int32_t *lr,uint32_t n,uint32_t gain,int bpm){
 float master=cl((float)gain/4096.f,0,1);if(bpm<30)bpm=30;if(bpm>300)bpm=300;
 for(uint32_t i=0;i<n;i++){
