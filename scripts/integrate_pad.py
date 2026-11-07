@@ -59,6 +59,12 @@ app=app.replace('static void note_on(int32_t note, uint32_t vel)\n{', 'static vo
 app=app.replace('    voice_level = 0.0f;\n', '')
 # The pad environment starts from the default profile until FX is pressed.
 # Preserve the template's original settings schema for this host-only prototype.
+# Catch template drift before passing generated C to the compiler.
+assert app.count('gs_pad_render(&gs_voice, lr, n, master_q12);') == 1
+assert app.count('gs_pad_panic(&gs_voice);') == 1
+assert app.count('gs_pad_init(&gs_voice);') == 1
+assert 'voice_level' not in app and 'voice_phase' not in app and 'gain_now' not in app
+assert 'voice_vel' not in app
 (target/"app.c").write_text(app)
 h=(target/"app.h").read_text().replace('#define APP_NAME "TEMPLATE"','#define APP_NAME "GROOVESCAPE"')
 (target/"app.h").write_text(h)
