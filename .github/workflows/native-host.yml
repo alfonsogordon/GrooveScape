@@ -27,6 +27,13 @@ jobs:
         run: .work/fm1-base/tools/build.py .work/fm1-base/groovescape --host
       - name: Run FM1 host UI and audio smoke test
         run: .work/fm1-base/groovescape/build/host/groovescape_host tests/native_host.txt .work/fm1-base/groovescape/build/host
+      - name: Upload host smoke-test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: groovescape-host-smoke
+          path: .work/fm1-base/groovescape/build/host/
+          if-no-files-found: ignore
       - name: Install Emscripten for browser build
         uses: mymindstorm/setup-emsdk@v14
         with:
