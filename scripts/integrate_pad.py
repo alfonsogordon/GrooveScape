@@ -70,7 +70,7 @@ app=app.replace('    gs_pad_init(&gs_voice);', '    gs_env_index = 0;\n    gs_pa
 # The template only supports BLE when configured; keep all Bluetooth paths
 # off in this unverified native prototype to avoid hardware crash regressions.
 assert app.count('static gs_pad gs_voice;') == 1
-assert app.count('gs_pad_note(&gs_voice,') == 4
+assert app.count('gs_pad_note(&gs_voice,') == 3
 assert app.count('gs_pad_environment(&gs_voice,') == 2
 assert app.count('void app_render(') == 1
 # The pad environment starts from the default profile until PRESET is turned.
