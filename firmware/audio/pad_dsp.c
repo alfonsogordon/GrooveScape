@@ -18,6 +18,7 @@ static const float spec[16][4] = {
 static float clampf(float x,float lo,float hi){return x<lo?lo:(x>hi?hi:x);}
 void gs_pad_init(gs_pad *p){memset(p,0,sizeof *p);p->hz=110.0f;p->intensity=0.5f;}
 void gs_pad_note(gs_pad *p,float hz,int gate){if(gate && isfinite(hz))p->hz=clampf(hz,30.0f,1500.0f);p->gate=(uint8_t)(gate!=0);}
+void gs_pad_panic(gs_pad *p){p->gate=0;p->env=0.0f;}
 void gs_pad_environment(gs_pad *p,unsigned environment,float intensity){p->environment=(uint8_t)(environment%16u);p->intensity=isfinite(intensity)?clampf(intensity,0.0f,1.0f):0.5f;}
 void gs_pad_render(gs_pad *p,int32_t *lr,uint32_t frames,uint32_t master_q12){
  const float *s=spec[p->environment%16u];
