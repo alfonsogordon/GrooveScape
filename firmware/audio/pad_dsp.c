@@ -97,7 +97,7 @@ void gs_pad_render(gs_pad *p,int32_t *lr,uint32_t frames,uint32_t master_q12){
   p->wash_r[p->wash_pos_r]=gs_clampf(dry_r+wet_r*.71f+wet_l*.11f,-1.0f,1.0f);
   if(++p->wash_pos_l==4093u)p->wash_pos_l=0;
   if(++p->wash_pos_r==4787u)p->wash_pos_r=0;
-  float scale=GS_OUTPUT*master*.75f;
+  float scale=GS_OUTPUT*master*1.15f;
   float out_l=gs_clampf((dry_l+wet_l*.32f)*scale,-8388607.0f,8388607.0f);
   float out_r=gs_clampf((dry_r+wet_r*.32f)*scale,-8388607.0f,8388607.0f);
   lr[2u*n]=(int32_t)out_l;
