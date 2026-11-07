@@ -94,11 +94,13 @@ assert app.count(old)==1
 app=app.replace(old, '''    if (gs_page == 0) {
         static const char *const names[4] = {"TONESCAPE", "BASS", "DRUMS", "LEAD"};
         static const char *const desc[4] = {"AMBIENT", "SUB BASS", "COMING", "COMING"};
+        static const uint16_t track_color[4] = {0x4C7F, 0x4E6A, 0xF6A0, 0xE3DF};
         cv_text(8, 2, &FONT_B, "TRACKS", C_WHITE);
         for (i = 0; i < 4; i++) {
             int32_t y = 23 + (int32_t)i * 25;
-            cv_rect(4, y, 232, 22, i == gs_track ? C_HI : C_LINE);
-            cv_text(12, y + 2, &FONT_XS, names[i], i == gs_track ? C_BLACK : C_WHITE);
+            cv_rect(4, y, 5, 22, track_color[i]);
+            cv_rect(12, y, 224, 22, i == gs_track ? track_color[i] : C_LINE);
+            cv_text(18, y + 2, &FONT_XS, names[i], i == gs_track ? C_BLACK : C_WHITE);
             cv_text(133, y + 2, &FONT_XS, desc[i], i == gs_track ? C_BLACK : C_GRAY);
         }
         int_text(gs_tempo, t);
@@ -107,10 +109,12 @@ app=app.replace(old, '''    if (gs_page == 0) {
         cv_text(100, 127, &FONT_XS, "ALGO: TRACK", C_GRAY);
     } else {
         static const char *const pages[] = {"TRACKS", "ENV", "LFO", "FX", "SCALE", "EDIT", "ARP", "SEQ", "MIX", "SONG"};
-        cv_text(8, 4, &FONT_B, pages[gs_page], C_WHITE);
+        static const uint16_t track_color[4] = {0x4C7F, 0x4E6A, 0xF6A0, 0xE3DF};
+        cv_rect(4, 3, 5, 22, track_color[gs_track]);
+        cv_text(15, 4, &FONT_B, pages[gs_page], C_WHITE);
         cv_text(170, 7, &FONT_XS, gs_page_num == 0 ? "PAGE 1" : gs_page_num == 1 ? "PAGE 2" : "PAGE 3", C_HI);
         cv_rect(6, 31, 228, 85, C_LINE);
-        cv_text(14, 40, &FONT_XS, gs_track == 0 ? "TONESCAPE" : gs_track == 1 ? "BASS" : gs_track == 2 ? "DRUMS" : "LEAD", C_HI);
+        cv_text(14, 40, &FONT_XS, gs_track == 0 ? "TONESCAPE" : gs_track == 1 ? "BASS" : gs_track == 2 ? "DRUMS" : "LEAD", track_color[gs_track]);
         cv_text(14, 67, &FONT_XS, gs_page == 1 ? "PAD SHAPE / ENVELOPE" :
             gs_page == 2 ? "SLOW MOVEMENT" : gs_page == 3 ? "SPACE / WASH" :
             gs_page == 4 ? "KEY / CHORD" : gs_page == 5 ? "EDIT (PLANNED)" :
