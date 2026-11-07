@@ -1,4 +1,4 @@
-/* GrooveScape original FM1-ready C pad prototype. No allocations or I/O in audio callback. */
+/* GrooveScape ToneScape V2 texture port. No allocations or I/O in audio callback. */
 #include "pad_dsp.h"
 #include <math.h>
 #include <string.h>
@@ -70,7 +70,9 @@ void gs_pad_render(gs_pad *p,int32_t *lr,uint32_t frames,uint32_t master_q12){
   float rate=p->gate?1.0f/(GS_SR*2.5f):1.0f/(GS_SR*5.0f);
   p->env+=((p->gate?1.0f:0.0f)-p->env)*rate;
   p->phase+=GS_PI2*p->hz/GS_SR;
-  if(p->phase>=GS_PI2)p->phase-=GS_PI2;
+  /* ToneScape V2 uses an evolving phase for slow formants, turbulence and drift.
+   * Wrapping every oscillator cycle destroys those slow modulations. */
+  if(p->phase>=GS_PI2*100000.0f)p->phase-=GS_PI2*100000.0f;
   p->drift+=GS_PI2*.11f/GS_SR;
   if(p->drift>=GS_PI2)p->drift-=GS_PI2;
   float phase=p->phase*(1.0f+s[5]*.0015f*sinf(p->drift));
