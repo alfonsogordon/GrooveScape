@@ -4,7 +4,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-typedef struct { float phase, drift, env, hz, intensity; uint8_t environment, gate; } gs_pad;
+typedef struct { float phase, drift, env, hz, intensity; uint8_t environment, gate; float wash_l[4093], wash_r[4787]; uint32_t wash_pos_l, wash_pos_r; } gs_pad;
 void gs_pad_init(gs_pad *p);
 void gs_pad_note(gs_pad *p, float hz, int gate);
 void gs_pad_panic(gs_pad *p);
