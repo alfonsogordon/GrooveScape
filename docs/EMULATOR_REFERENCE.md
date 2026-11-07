@@ -20,3 +20,9 @@ Next technical steps:
 ## Updated visual reference: Skiff
 
 User prefers https://illuminus5.github.io/skiff/try/ over the JIANT player: the browser should visually resemble the physical FM1, including its front panel, display, keys and encoder. Treat Skiff as the **visual and interaction reference**. The FM1 firmware and emulator runtime remain separate technical decisions; aim for shared app code, not an independent HTML-only imitation. Exact Skiff implementation/assets have not been inspected or licensed for reuse. Do not copy them without verifying permission.
+
+## User-approved alternative: ChoralRoot emulator
+
+https://quixotic7.github.io/ChoralRootFM1/emu/
+
+Prioritise a working emulator that runs the real GrooveScape firmware and audio over a decorative FM1 faceplate. ChoralRoot-style emulator is an acceptable interface reference, alongside Skiff's hardware look. Evaluate fm1-base's existing browser emulator first because it shares app code with the device. Do not copy ChoralRoot assets or code without inspecting licence. The user's priority is sound and real FM1 integration.
