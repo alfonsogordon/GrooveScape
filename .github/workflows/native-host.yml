@@ -63,7 +63,7 @@ jobs:
           from pathlib import Path
           app = Path('.work/fm1-base/groovescape/app.c').read_text()
           assert app.count('gs_pad_render(&gs_voice, lr, n, master_q12);') == 1
-          assert app.count('gs_pad_environment(&gs_voice,') == 2
+          assert app.count('gs_pad_environment(&gs_voice,') == 3
           assert app.count('gs_bass_mix(&gs_bass_voice, lr, n, master_q12);') == 1
           assert 'gs_env_names[gs_env_index]' in app
           assert 'voice_level' not in app
