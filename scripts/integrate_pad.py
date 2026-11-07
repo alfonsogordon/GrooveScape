@@ -343,7 +343,7 @@ assert app.count('void app_render(') == 1
 # The pad environment starts from the default profile until PRESET is turned.
 # Preserve the template's original settings schema for this host-only prototype.
 # Catch template drift before passing generated C to the compiler.
-assert app.count('gs_pad_render(&gs_voice, lr, n, master_q12);') == 1
+assert app.count('gs_pad_render(&gs_voice, lr, n, pad_gain);') == 1
 assert app.count('gs_bass_mix(&gs_bass_voice, lr, n, bass_gain);') == 1
 assert app.count('gs_pad_panic(&gs_voice);') >= 1
 assert app.count('gs_pad_init(&gs_voice);') >= 1
