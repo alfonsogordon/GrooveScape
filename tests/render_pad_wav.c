@@ -20,7 +20,8 @@ int main(int argc,char **argv){
   gs_pad_render(&p,lr,count,4096);
   for(uint32_t i=0;i<count*2u;i++){
    int32_t x=lr[i]/256;
-   if(x>32767)x=32767;if(x< -32768)x= -32768;
+   if(x>32767)x=32767;
+   if(x< -32768)x= -32768;
    w16(f,(uint16_t)(int16_t)x);
   }
  }
