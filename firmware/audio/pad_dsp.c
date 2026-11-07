@@ -84,9 +84,10 @@ void gs_pad_render(gs_pad *p,int32_t *lr,uint32_t frames,uint32_t master_q12){
   if(p->phase>=GS_PI2)p->phase-=GS_PI2;
   p->drift+=GS_PI2*.11f/GS_SR;
   if(p->drift>=GS_PI2)p->drift-=GS_PI2;
-  float phase=p->phase*(1.0f+s[5]*.0015f*sinf(p->drift));
-  float left=gs_texture(phase,s,p->intensity,.37f,p->harmonic_weight,p->odd_l);
-  float right=gs_texture(phase,s,p->intensity,1.11f,p->harmonic_weight,p->odd_r);
+  float phase_l=p->phase*(1.0f+s[5]*.0015f*sinf(p->phase*.0007f+.37f));
+  float phase_r=p->phase*(1.0f+s[5]*.0015f*sinf(p->phase*.0007f+1.11f));
+  float left=gs_texture(phase_l,s,p->intensity,.37f,p->harmonic_weight,p->odd_l);
+  float right=gs_texture(phase_r,s,p->intensity,1.11f,p->harmonic_weight,p->odd_r);
   /* Stereo wash: cross-fed, decaying diffusion taps. Tail continues after note-off. */
   float wet_l=p->wash_l[p->wash_pos_l];
   float wet_r=p->wash_r[p->wash_pos_r];
