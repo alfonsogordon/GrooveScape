@@ -59,5 +59,5 @@ h=(target/"app.h").read_text().replace('#define APP_NAME "TEMPLATE"','#define AP
 (target/"app.h").write_text(h)
 toml=(target/"fm1.toml").read_text().replace('name = "TEMPLATE"','name = "GROOVESCAPE"').replace('usb_product = "TEMPLATE FM-1"','usb_product = "GrooveScape FM-1"').replace('ble = true','ble = false').replace('ble_central = true','ble_central = false')
 (target/"fm1.toml").write_text(toml)
-print(f"Generated {target}. Build with: {base}/tools/build.py {target} --host")
+print(f"Generated {target}. Build with: {base}/tools/build.py groovescape --host")
 print("BLE disabled for the first integration build. DO NOT FLASH hardware.")
