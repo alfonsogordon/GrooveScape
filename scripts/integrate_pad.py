@@ -213,6 +213,12 @@ app=app.replace(old_encoder, '''        } else if (k == EN_SELECT) {
                     gs_env_index = (unsigned)*v % 16u;
                     gs_pad_environment(&gs_voice, gs_env_index, (float)gs_intensity_percent/100.0f);
                 }
+                if (gs_page == 5 && gs_page_num == 0) {
+                    if (gs_track == 3 && knob == 0) gs_lead_voice.brightness = (float)*v/100.0f;
+                    if (gs_track == 1 && knob == 0) gs_bass_voice.cutoff = 0.015f + (float)*v*0.003f;
+                    if (gs_track == 2 && knob == 0) gs_drum_voice.pattern = (uint8_t)(*v >= 50);
+                }
+                if (gs_page == 7 && gs_track == 2 && knob == 0) gs_drum_voice.playing = *v >= 50;
                 int_text(*v, t); app_say("PARAM", t);
             }
         } else {
