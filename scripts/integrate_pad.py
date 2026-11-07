@@ -214,6 +214,8 @@ app=app.replace('static void note_on(int32_t note, uint32_t vel)\n{', 'static vo
 # original panic block has been replaced; avoid broad substitutions.
 # Keep the native screen and audio environment synchronized at boot.
 # In particular, resetting the DSP must not leave a stale UI selection.
+# Initialise scale editor to actual ToneScape defaults rather than zeroed placeholders.
+app=app.replace('    gs_bass_init(&gs_bass_voice);', '    gs_bass_init(&gs_bass_voice);\\n    gs_knobs[4][0][0] = 9; gs_knobs[4][0][1] = 0; gs_knobs[4][0][2] = 100;')
 app=app.replace('    gs_pad_init(&gs_voice);', '    gs_pad_key = -1; gs_bass_key = -1;\n    gs_env_index = 0;\n    gs_intensity_percent = 35;\n    gs_pad_init(&gs_voice);\n    gs_pad_environment(&gs_voice, gs_env_index, 0.35f);')
 # The template only supports BLE when configured; keep all Bluetooth paths
 # off in this unverified native prototype to avoid hardware crash regressions.
