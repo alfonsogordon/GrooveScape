@@ -14,6 +14,10 @@ GrooveScape is an in-development M-VAVE FM1 groovebox project, combining ToneSca
 - Online demo, preset companion and verified USB web flasher.
 - SMC Mixer integration and consistent hardware/browser controls.
 
+## Native FM1 emulator (build-gated)
+
+The [native host and browser workflow](https://github.com/alfonsogordon/GrooveScape/actions/workflows/native-host.yml) compiles the real fm1-base application, runs audio/UI checks and publishes the browser output to [`/native/`](https://alfonsogordon.github.io/GrooveScape/native/) **only after all tests pass**. The link may be unavailable until the first passing build and GitHub Pages deployment. The current native application is a **single-pad integration prototype**, not the completed four-track groovebox. Bluetooth is deliberately disabled, and no hardware firmware is approved for flashing.
+
 ## Run the browser prototype
 Open `index.html` in a modern browser or enable GitHub Pages with **Settings → Pages → Deploy from a branch → main → / (root)**. The prototype uses basic browser-generated sounds, **not** the actual ToneScape engine. It cannot flash the FM1.
 
