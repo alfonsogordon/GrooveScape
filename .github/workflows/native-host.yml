@@ -45,6 +45,10 @@ jobs:
           version: '4.0.21'
       - name: Build browser emulator
         run: .work/fm1-base/tools/build.py .work/fm1-base/groovescape --web
+      - name: Verify browser emulator entrypoint
+        run: |
+          test -s .work/fm1-base/groovescape/build/emu/index.html
+          find .work/fm1-base/groovescape/build/emu -maxdepth 1 -type f -printf "%f %s bytes\\n"
       - name: Publish verified native emulator to GitHub Pages folder
         if: success() && github.ref == 'refs/heads/main'
         run: |
