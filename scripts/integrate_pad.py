@@ -18,12 +18,12 @@ if not (source/"app.c").is_file():
 if target.exists():
     raise SystemExit(f"Refusing to overwrite {target}; move it away first")
 shutil.copytree(source,target,ignore=shutil.ignore_patterns("build"))
-for filename in ("pad_dsp.c","pad_dsp.h","bass_dsp.c","bass_dsp.h"):
+for filename in ("pad_dsp.c","pad_dsp.h","bass_dsp.c","bass_dsp.h","extra_dsp.c","extra_dsp.h"):
     shutil.copyfile(root/"firmware/audio"/filename,target/filename)
 app=(target/"app.c").read_text()
 anchor='#include "fastmath.h"'
 assert app.count(anchor)==1
-app=app.replace(anchor,anchor+'\n#include "pad_dsp.h"\nstatic gs_pad gs_voice;\nstatic gs_pad gs_fading_voice;\nstatic gs_pad gs_chord[2], gs_chord_fading[2];\nstatic gs_pad gs_melody;\nstatic int gs_chord_select = 0;\nstatic int gs_root = 9, gs_minor = 0, gs_latch = 1, gs_last_chord = -1;\nstatic unsigned gs_track, gs_page, gs_page_num;\n#include \"bass_dsp.h\"\nstatic gs_bass gs_bass_voice;\nstatic int gs_pad_key = -1, gs_bass_key = -1;')
+app=app.replace(anchor,anchor+'\n#include "pad_dsp.h"\nstatic gs_pad gs_voice;\nstatic gs_pad gs_fading_voice;\nstatic gs_pad gs_chord[2], gs_chord_fading[2];\nstatic gs_pad gs_melody;\nstatic int gs_chord_select = 0;\nstatic int gs_root = 9, gs_minor = 0, gs_latch = 1, gs_last_chord = -1;\nstatic unsigned gs_track, gs_page, gs_page_num;\n#include \"bass_dsp.h\"\nstatic gs_bass gs_bass_voice;\n#include "extra_dsp.h"\nstatic gs_lead gs_lead_voice;\nstatic gs_drums gs_drum_voice;\nstatic int gs_pad_key = -1, gs_bass_key = -1;')
 # Expose the active pad environment on the real FM1 screen.
 app=app.replace('static gs_pad gs_voice;', 'static gs_pad gs_voice;\nstatic unsigned gs_env_index;\nstatic int gs_intensity_percent = 35;\nstatic const char *const gs_env_names[16] = {\n    "DRIFT", "BLOOM", "EMBER", "GLASS CHOIR", "DEEP FOREST", "CATHEDRAL",\n    "OCEAN", "RIFT", "MIST", "MACHINE AIR", "TAPE GHOST", "HOLLOW EARTH",\n    "NEON WEATHER", "ICE BLOOM", "AURORA BODY", "NOIR VOID"\n};')
 old='    voice_vel = (float)vel / 127.0f;\n    voice_note = note;'
@@ -74,7 +74,7 @@ app=app.replace(old,'''    voice_note = note;
             if (delta < nearest) { nearest=delta; degree=i; }
         }
         int locked = note + scale[degree] - relative;
-        gs_pad_note(&gs_melody, 440.0f*fm_exp2f((float)(locked-69)/12.0f), 1);\n    } else if (gs_track == 1) {
+        gs_pad_note(&gs_melody, 440.0f*fm_exp2f((float)(locked-69)/12.0f), 1);\n    } else if (gs_track == 3) {\n        gs_lead_note(&gs_lead_voice, 440.0f*fm_exp2f((float)(note-69)/12.0f), 1);\n    } else if (gs_track == 1) {
         /* Bass uses the same scale/chord keyboard, with monophonic root voicing. */
         static const int major_scale[7] = {0,2,4,5,7,9,11};
         static const int minor_scale[7] = {0,2,3,5,7,8,10};
@@ -97,23 +97,23 @@ app=app.replace(old,'''    voice_note = note;
 
 old='    if (voice_note == note)\n        voice_note = -1;'
 assert app.count(old)==1
-app=app.replace(old,'    if (voice_note == note) voice_note = -1;\n    if (gs_track == 0 && ((note % 12)!=1 && (note % 12)!=3 && (note % 12)!=6 && (note % 12)!=8 && (note % 12)!=10)) gs_pad_note(&gs_melody, 0.0f, 0);\n    if (gs_bass_key == note && (!gs_latch || ((note % 12)!=1 && (note % 12)!=3 && (note % 12)!=6 && (note % 12)!=8 && (note % 12)!=10))) { gs_bass_note(&gs_bass_voice, 0.0f, 0); gs_bass_key = -1; }')
+app=app.replace(old,'    if (voice_note == note) voice_note = -1;\n    if (gs_track == 0 && ((note % 12)!=1 && (note % 12)!=3 && (note % 12)!=6 && (note % 12)!=8 && (note % 12)!=10)) gs_pad_note(&gs_melody, 0.0f, 0);\n    if (gs_track == 3) gs_lead_note(&gs_lead_voice, 0, 0);\n    if (gs_bass_key == note && (!gs_latch || ((note % 12)!=1 && (note % 12)!=3 && (note % 12)!=6 && (note % 12)!=8 && (note % 12)!=10))) { gs_bass_note(&gs_bass_voice, 0.0f, 0); gs_bass_key = -1; }')
 start=app.index('void app_render(int32_t *lr, uint32_t n, uint32_t master_q12)')
 end=app.index('\nvoid app_panic(void)',start)
 app=app[:start]+'''void app_render(int32_t *lr, uint32_t n, uint32_t master_q12)
 {
     midi_in();
-    gs_pad_render(&gs_voice, lr, n, master_q12);\n    gs_pad_mix(&gs_fading_voice, lr, n, master_q12);\n    gs_pad_mix(&gs_melody, lr, n, master_q12);\n    for (int i=0;i<2;i++) { gs_pad_mix(&gs_chord[i], lr, n, master_q12); gs_pad_mix(&gs_chord_fading[i], lr, n, master_q12); }\n    gs_bass_mix(&gs_bass_voice, lr, n, master_q12);
+    gs_pad_render(&gs_voice, lr, n, master_q12);\n    gs_pad_mix(&gs_fading_voice, lr, n, master_q12);\n    gs_pad_mix(&gs_melody, lr, n, master_q12);\n    for (int i=0;i<2;i++) { gs_pad_mix(&gs_chord[i], lr, n, master_q12); gs_pad_mix(&gs_chord_fading[i], lr, n, master_q12); }\n    gs_bass_mix(&gs_bass_voice, lr, n, master_q12);\n    gs_lead_mix(&gs_lead_voice, lr, n, master_q12);\n    gs_drums_mix(&gs_drum_voice, lr, n, master_q12, gs_tempo);
 }
 '''+app[end:]
 old='    voice_note = -1;\n    voice_level = 0.0f;'
 assert app.count(old)==1
-app=app.replace(old,'    voice_note = -1;\n    gs_pad_key = -1; gs_bass_key = -1;\n    gs_pad_panic(&gs_voice);\n    gs_pad_panic(&gs_fading_voice);\n    gs_pad_panic(&gs_melody);\n    for (int i=0;i<2;i++) { gs_pad_panic(&gs_chord[i]); gs_pad_panic(&gs_chord_fading[i]); }\n    gs_last_chord = -1;\n    gs_bass_panic(&gs_bass_voice);')
+app=app.replace(old,'    voice_note = -1;\n    gs_pad_key = -1; gs_bass_key = -1;\n    gs_pad_panic(&gs_voice);\n    gs_pad_panic(&gs_fading_voice);\n    gs_pad_panic(&gs_melody);\n    for (int i=0;i<2;i++) { gs_pad_panic(&gs_chord[i]); gs_pad_panic(&gs_chord_fading[i]); }\n    gs_last_chord = -1;\n    gs_bass_panic(&gs_bass_voice);\n    gs_lead_note(&gs_lead_voice, 0, 0); gs_drum_voice.playing = 0;')
 old='void app_init(void)\n{'
 assert app.count(old)==1
-app=app.replace(old,'void app_init(void)\n{\n    gs_pad_init(&gs_voice);\n    gs_pad_init(&gs_fading_voice);\n    gs_pad_init(&gs_melody);\n    for (int i=0;i<2;i++) { gs_pad_init(&gs_chord[i]); gs_pad_init(&gs_chord_fading[i]); }\n    gs_bass_init(&gs_bass_voice);')
+app=app.replace(old,'void app_init(void)\n{\n    gs_pad_init(&gs_voice);\n    gs_pad_init(&gs_fading_voice);\n    gs_pad_init(&gs_melody);\n    for (int i=0;i<2;i++) { gs_pad_init(&gs_chord[i]); gs_pad_init(&gs_chord_fading[i]); }\n    gs_bass_init(&gs_bass_voice);\n    gs_lead_init(&gs_lead_voice); gs_drums_init(&gs_drum_voice);')
 # Physical keyboard: white notes, black chord triggers, last black latch.
-app=app.replace('            note_on(note, v);', '''            if (gs_track != 2) {
+app=app.replace('            note_on(note, v);', '''            if (gs_track == 2) { gs_drum_voice.playing = !gs_drum_voice.playing; app_say("DRUMS", gs_drum_voice.playing ? "PLAY" : "STOP"); } else {
                 gs_chord_select = ((note % 12)==1 || (note % 12)==3 || (note % 12)==6 || (note % 12)==8 || (note % 12)==10);
                 if (k == 25) { gs_latch = !gs_latch; app_say("CHORD LATCH", gs_latch ? "ON" : "OFF"); }
                 else note_on(note, v);
@@ -165,7 +165,7 @@ app=app.replace('        } else if (k == EN_PRESET) {', '''        } else if (k 
         } else if (k == EN_PRESET) {''')
 app=app.replace('        } else if (k == EN_ALGO) {', '''        } else if (k == EN_ALGO) {
             gs_track = (unsigned)(((int)gs_track + e % 4 + 4) % 4);
-            app_say("TRACK", gs_track == 0 ? "TONESCAPE" : gs_track == 1 ? "BASS" : gs_track == 2 ? "DRUMS PLANNED" : "LEAD PLANNED");
+            app_say("TRACK", gs_track == 0 ? "TONESCAPE" : gs_track == 1 ? "BASS" : gs_track == 2 ? "DRUMS" : "LEAD");
         } else if (k == EN_K1) {''')
 # The upstream template has no EN_SELECT/EN_K1 branches. Replace its real
 # encoder fallback, otherwise all page/track/knob changes are display-only.
@@ -252,7 +252,7 @@ old='    for (i = 0; i < NB; i++)\n        cell(4 + (int32_t)(i % 4u) * 58, (int
 assert app.count(old)==1
 app=app.replace(old, '''    if (gs_page == 0) {
         static const char *const names[4] = {"TONESCAPE", "BASS", "DRUMS", "LEAD"};
-        static const char *const desc[4] = {"AMBIENT", "SUB BASS", "COMING", "COMING"};
+        static const char *const desc[4] = {"AMBIENT", "SUB BASS", "SEQUENCER", "SPARKLE"};
         static const uint16_t track_color[4] = {0x4C7F, 0x4E6A, 0xF6A0, 0xE3DF};
         cv_text(8, 2, &FONT_B, gs_page_num ? "VISUAL" : "TRACKS", C_WHITE);
         for (i = 0; i < 4; i++) {
@@ -322,7 +322,7 @@ app=app.replace('static void note_on(int32_t note, uint32_t vel)\n{', 'static vo
 # Keep the native screen and audio environment synchronized at boot.
 # In particular, resetting the DSP must not leave a stale UI selection.
 # Initialise scale editor to actual ToneScape defaults rather than zeroed placeholders.
-app=app.replace('    gs_bass_init(&gs_bass_voice);', '    gs_bass_init(&gs_bass_voice);\n    gs_knobs[0][4][0][0] = 9; gs_knobs[0][4][0][1] = 0; gs_knobs[0][4][0][2] = 100;')
+app=app.replace('    gs_bass_init(&gs_bass_voice);\n    gs_lead_init(&gs_lead_voice); gs_drums_init(&gs_drum_voice);', '    gs_bass_init(&gs_bass_voice);\n    gs_lead_init(&gs_lead_voice); gs_drums_init(&gs_drum_voice);\n    gs_knobs[0][4][0][0] = 9; gs_knobs[0][4][0][1] = 0; gs_knobs[0][4][0][2] = 100;')
 app=app.replace('    gs_pad_init(&gs_voice);', '    gs_pad_key = -1; gs_bass_key = -1;\n    gs_env_index = 0;\n    gs_intensity_percent = 35;\n    gs_pad_init(&gs_voice);\n    gs_pad_environment(&gs_voice, gs_env_index, 0.35f);')
 # The template only supports BLE when configured; keep all Bluetooth paths
 # off in this unverified native prototype to avoid hardware crash regressions.
@@ -344,7 +344,7 @@ h=(target/"app.h").read_text().replace('#define APP_NAME "TEMPLATE"','#define AP
 (target/"app.h").write_text(h)
 toml=(target/"fm1.toml").read_text().replace('name = "TEMPLATE"','name = "GROOVESCAPE"').replace('usb_product = "TEMPLATE FM-1"','usb_product = "GrooveScape FM-1"').replace('ble = true','ble = false').replace('ble_central = true','ble_central = false').replace('id_prefix = "FM-1_11"','id_prefix = "FM-1_9017"')
 assert 'o2 = []' in toml, 'Review upstream O2 build configuration'
-toml = toml.replace('o2 = []', 'o2 = ["pad_dsp.c", "bass_dsp.c"]')
+toml = toml.replace('o2 = []', 'o2 = ["pad_dsp.c", "bass_dsp.c", "extra_dsp.c"]')
 (target/"fm1.toml").write_text(toml)
 print(f"Generated {target}. Build with: {base}/tools/build.py {target} --host")
 print("BLE disabled; prototype ID. DO NOT FLASH hardware.")
