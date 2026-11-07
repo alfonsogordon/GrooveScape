@@ -42,7 +42,7 @@ app=app[:start]+'''void app_render(int32_t *lr, uint32_t n, uint32_t master_q12)
 '''+app[end:]
 old='    voice_note = -1;\n    voice_level = 0.0f;'
 assert app.count(old)==1
-app=app.replace(old,'    voice_note = -1;\n    voice_level = 0.0f;\n    gs_pad_panic(&gs_voice);\n    gs_bass_panic(&gs_bass_voice);')
+app=app.replace(old,'    voice_note = -1;\n    gs_pad_panic(&gs_voice);\n    gs_bass_panic(&gs_bass_voice);')
 old='void app_init(void)\n{'
 assert app.count(old)==1
 app=app.replace(old,'void app_init(void)\n{\n    gs_pad_init(&gs_voice);\n    gs_bass_init(&gs_bass_voice);')
