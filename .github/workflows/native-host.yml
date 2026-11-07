@@ -8,6 +8,11 @@ on:
       - 'tests/test_pad.c'
       - 'tests/native_host.txt'
       - '.github/workflows/native-host.yml'
+permissions:
+  contents: write
+concurrency:
+  group: groovescape-native-build
+  cancel-in-progress: false
 jobs:
   pad-and-host:
     runs-on: ubuntu-latest
@@ -40,6 +45,18 @@ jobs:
           version: '4.0.21'
       - name: Build browser emulator
         run: .work/fm1-base/tools/build.py .work/fm1-base/groovescape --web
+      - name: Publish verified native emulator to GitHub Pages folder
+        if: success() && github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p native
+          cp -a .work/fm1-base/groovescape/build/emu/. native/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f native
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish tested GrooveScape FM1 browser emulator [skip ci]"
+            git push origin HEAD:main
+          fi
       - name: Upload emulator artifact
         if: success()
         uses: actions/upload-artifact@v4
