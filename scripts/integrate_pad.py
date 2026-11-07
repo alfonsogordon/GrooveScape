@@ -37,7 +37,7 @@ end=app.index('\nvoid app_panic(void)',start)
 app=app[:start]+'''void app_render(int32_t *lr, uint32_t n, uint32_t master_q12)
 {
     midi_in();
-    gs_pad_render(&gs_voice, lr, n, master_q12);\n    gs_pad_render(&gs_fading_voice, lr, n, master_q12);\n    gs_bass_mix(&gs_bass_voice, lr, n, master_q12);
+    gs_pad_render(&gs_voice, lr, n, master_q12);\n    gs_pad_mix(&gs_fading_voice, lr, n, master_q12);\n    gs_bass_mix(&gs_bass_voice, lr, n, master_q12);
 }
 '''+app[end:]
 old='    voice_note = -1;\n    voice_level = 0.0f;'
