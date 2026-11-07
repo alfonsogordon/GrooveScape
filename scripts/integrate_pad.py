@@ -55,6 +55,7 @@ app=app.replace('            set.wave = (set.wave + 1u) % 16u;\n            gs_p
 app=app.replace('static float voice_phase, voice_level, gain_now;', '')
 app=app.replace('static volatile float voice_vel = 1.0f;', '')
 app=app.replace('    voice_vel = (float)vel / 127.0f;\n', '')
+app=app.replace('static void note_on(int32_t note, uint32_t vel)\n{', 'static void note_on(int32_t note, uint32_t vel)\n{\n    (void)vel;')
 app=app.replace('    voice_level = 0.0f;\n', '')
 (target/"app.c").write_text(app)
 h=(target/"app.h").read_text().replace('#define APP_NAME "TEMPLATE"','#define APP_NAME "GROOVESCAPE"')
