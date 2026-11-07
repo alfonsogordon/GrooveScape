@@ -83,12 +83,13 @@ jobs:
           name: groovescape-build-diagnostics
           path: .work/diagnostics/
           if-no-files-found: ignore
-      - name: Publish failed host diagnostics for automated debugging
-        if: failure() && github.ref == 'refs/heads/main'
+      - name: Publish host diagnostics for automated debugging
+        if: always() && github.ref == 'refs/heads/main'
         run: |
           mkdir -p ci-diagnostics
           {
             echo "Commit: $GITHUB_SHA"
+            echo "Host stage status: ${{ job.status }}"
             echo "Run: $GITHUB_RUN_ID"
             echo "DSP test log (last 120 lines):"
             tail -n 120 /tmp/groovescape-dsp-test.log 2>/dev/null || true
