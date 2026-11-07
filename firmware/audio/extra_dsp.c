@@ -17,15 +17,17 @@ float sh=sinf(TAU*p->phase+1.2f*sinf(TAU*p->phase*2.f));
 float sparkle=sinf(TAU*p->phase*4.01f)*(.10f+.25f*p->brightness);
 float out=(sh*.5f+sparkle)*p->env*master*950000.f;add(lr,i,out);
 }}
-void gs_drums_init(gs_drums *d){memset(d,0,sizeof *d);d->rng=0xC017A12u;d->kick=0.8f;d->snare=0.4f;d->hat=.18f;}
+void gs_drums_init(gs_drums *d){memset(d,0,sizeof *d);d->rng=0xC017A12u;d->kick=0.8f;d->snare=0.4f;d->hat=.0f;d->kick=0.f;d->snare=0.f;d->kick_steps[0]=0x0101u;d->snare_steps[0]=0x1010u;d->hat_steps[0]=0x4444u;d->kick_steps[1]=0x0101u;d->snare_steps[1]=0x0100u;d->hat_steps[1]=0x0404u;}
 void gs_drums_mix(gs_drums *d,int32_t *lr,uint32_t n,uint32_t gain,int bpm){
 float master=cl((float)gain/4096.f,0,1);if(bpm<30)bpm=30;if(bpm>300)bpm=300;
 for(uint32_t i=0;i<n;i++){
 if(d->playing){d->beat_pos+=(float)bpm/(60.f*SR)*4.f;
 if(d->beat_pos>=1.f){d->beat_pos-=1.f;d->step=(d->step+1u)&15u;
-if((d->step%8u)==0u)d->kick=1.f;
-if((d->step%8u)==4u && !d->pattern)d->snare=.8f;
-if((d->step%(d->pattern?8u:4u))==2u)d->hat=.4f;
+uint16_t bit=(uint16_t)(1u<<d->step);
+if(d->kick_steps[d->pattern]&bit)d->kick=1.f;
+if(d->snare_steps[d->pattern]&bit)d->snare=.8f;
+if(d->hat_steps[d->pattern]&bit)d->hat=.4f;
+if(d->fill && (d->step&1u))d->snare=.55f;
 }}
 d->phase+= (48.f+95.f*d->kick*d->kick)/SR;if(d->phase>=1)d->phase-=1;
 d->rng^=d->rng<<13;d->rng^=d->rng>>17;d->rng^=d->rng<<5;
@@ -33,5 +35,5 @@ float noise=(float)((int32_t)d->rng)/2147483648.f;
 float kick=sinf(TAU*d->phase)*d->kick;
 float snare=noise*d->snare;float hat=noise*d->hat;
 d->kick*=.9992f;d->snare*=.996f;d->hat*=.984f;
-add(lr,i,(kick*.7f+snare*.22f+hat*.07f)*master*1200000.f);
+if(!d->mute)add(lr,i,(kick*.7f+snare*.22f+hat*.07f)*master*1200000.f);
 }}
