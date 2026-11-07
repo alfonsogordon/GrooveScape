@@ -21,13 +21,13 @@ jobs:
       - name: Create GrooveScape firmware from upstream template
         run: python3 scripts/integrate_pad.py
       - name: Build host simulator
-        run: .work/fm1-base/tools/build.py .work/fm1-base/groovescape --host
+        run: .work/fm1-base/tools/build.py groovescape --host
       - name: Install Emscripten for browser build
         uses: mymindstorm/setup-emsdk@v14
         with:
           version: '4.0.21'
       - name: Build browser emulator
-        run: .work/fm1-base/tools/build.py .work/fm1-base/groovescape --web
+        run: .work/fm1-base/tools/build.py groovescape --web
       - name: Upload emulator artifact
         if: success()
         uses: actions/upload-artifact@v4
