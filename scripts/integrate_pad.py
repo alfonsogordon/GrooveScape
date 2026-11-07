@@ -31,7 +31,7 @@ assert app.count(old)==1
 app=app.replace(old,'    voice_note = note;\n    if (note < 48) {\n        gs_bass_key = note;\n        gs_bass_note(&gs_bass_voice, 440.0f * fm_exp2f((float)(note - 69) / 12.0f), 1);\n    } else {\n        gs_pad_key = note;\n        gs_pad_note(&gs_voice, 440.0f * fm_exp2f((float)(note - 69) / 12.0f), 1);\n    }')
 old='    if (voice_note == note)\n        voice_note = -1;'
 assert app.count(old)==1
-app=app.replace(old,'    if (voice_note == note) {\n        voice_note = -1;\n        if (gs_pad_key == note) { gs_pad_note(&gs_voice, 0.0f, 0); gs_pad_key = -1; }\n        if (gs_bass_key == note) { gs_bass_note(&gs_bass_voice, 0.0f, 0); gs_bass_key = -1; }\n    }')
+app=app.replace(old,'    if (voice_note == note) voice_note = -1;\n    if (gs_pad_key == note) { gs_pad_note(&gs_voice, 0.0f, 0); gs_pad_key = -1; }\n    if (gs_bass_key == note) { gs_bass_note(&gs_bass_voice, 0.0f, 0); gs_bass_key = -1; }')
 start=app.index('void app_render(int32_t *lr, uint32_t n, uint32_t master_q12)')
 end=app.index('\nvoid app_panic(void)',start)
 app=app[:start]+'''void app_render(int32_t *lr, uint32_t n, uint32_t master_q12)
