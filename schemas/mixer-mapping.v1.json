@@ -32,7 +32,7 @@
       "strip": 7
     },
     {
-      "id": "fx-return",
+      "id": "percussion",
       "strip": 8
     }
   ],
@@ -69,9 +69,9 @@
         "shimmer",
         "stereoWidth"
       ],
-      "alternateMode": "master-effects-via-strip-8",
+      "alternateMode": "master-effects-via-explicit-mode",
       "notes": "Proposed UI mapping; MIDI CC16-23 from Hortator reference, actual firmware not yet implemented",
-      "masterSelection": "Select strip 8 to edit master effects; fader 8 controls wet FX return only"
+      "masterSelection": "Master effects accessible via FM1 effects page or explicit FX mode, not a dedicated mixer strip"
     },
     "buttons": {
       "message": "note-on",
@@ -82,13 +82,7 @@
       "play": 94,
       "record": 95
     },
-    "masterVolume": "FM1 hardware master volume (not SMC strip 8)",
-    "fxReturn": {
-      "strip": 8,
-      "fader": "wet-return-level",
-      "mute": "mute-wet-return-keep-dry",
-      "select": "master-effects"
-    }
+    "masterVolume": "FM1 hardware master volume (not assigned to SMC fader)"
   },
   "safety": {
     "bluetoothAutostart": false,
