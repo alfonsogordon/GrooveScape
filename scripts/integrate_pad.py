@@ -88,6 +88,21 @@ app=app.replace('        } else if (k == EN_ALGO) {', '''        } else if (k ==
             gs_track = (unsigned)(((int)gs_track + e % 4 + 4) % 4);
             app_say("TRACK", gs_track == 0 ? "TONESCAPE" : gs_track == 1 ? "BASS" : gs_track == 2 ? "DRUMS PLANNED" : "LEAD PLANNED");
         } else if (k == EN_K1) {''')
+# Four physical encoders follow the selected screen, with separate page values.
+# K1 on TRACKS continues to control the real ToneScape intensity.
+app=app.replace('static int gs_tempo = 90;', 'static int gs_tempo = 90;\\nstatic int gs_knobs[10][4][4];')
+app=app.replace('        } else if (k == EN_K1) {', '''        } else if (k >= EN_K1 && k <= EN_K4) {
+            unsigned knob = (unsigned)(k - EN_K1);
+            if (gs_page == 0 && gs_track == 0 && knob == 0) {''')
+app=app.replace('            app_say("TONESCAPE INT", t);', '''            app_say("TONESCAPE INT", t);
+            } else {
+                int *v = &gs_knobs[gs_page][gs_page_num][knob];
+                *v += e;
+                if (*v < 0) *v = 0;
+                if (*v > 100) *v = 100;
+                int_text(*v, t);
+                app_say("PAGE VALUE", t);
+            }''')
 # The last replacement redirects the former intensity branch into K1, so
 # ALGORITHM remains dedicated to track selection like SLOOP.
 old='    for (i = 0; i < NB; i++)\n        cell(4 + (int32_t)(i % 4u) * 58, (int32_t)(i / 4u) * 21, 56, BTN_NAME[i], (ui.btn >> i) & 1u);'
@@ -129,7 +144,12 @@ app=app.replace(old, '''    if (gs_page == 0) {
             {"SECTIONS A-D", "SAVE / LOAD", "", ""}
         };
         cv_text(14, 67, &FONT_XS, labels[gs_page][gs_page_num], C_WHITE);
-        cv_text(14, 95, &FONT_XS, "LAYOUT PREVIEW", C_GRAY);
+        for (i = 0; i < 4; i++) {
+            char val[12];
+            int_text(gs_knobs[gs_page][gs_page_num][i], val);
+            cv_text(14 + (int32_t)i * 56, 94, &FONT_XS, ENC_NAME[EN_K1 + i], C_GRAY);
+            cv_text(14 + (int32_t)i * 56, 109, &FONT_XS, val, track_color[gs_track]);
+        }
         cv_text(8, 128, &FONT_XS, "SELECT: PAGE  HOME: TRACKS", C_GRAY);
     }''')
 app=app.replace('    gs_track = 0; gs_tracks_page = 1;', '    gs_track = 0; gs_page = 0; gs_page_num = 0; gs_tempo = 90;')
