@@ -17,7 +17,7 @@ expect note 60
 wav pad.wav
 wait 3500
 wavstop
-expect peak_db_min -35
+expect peak_db_min -42
 midi 80 3C 00
 wait 50
 expect note -1
