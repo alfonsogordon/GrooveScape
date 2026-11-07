@@ -43,6 +43,12 @@ jobs:
           if-no-files-found: error
       - name: Validate integration script syntax
         run: python3 -m py_compile scripts/integrate_pad.py
+      - name: Validate strict native C build before FM1 integration
+        run: |
+          cc -std=c11 -O2 -Wall -Wextra -Werror -c firmware/audio/pad_dsp.c -o /tmp/gs-pad.o
+          cc -std=c11 -O2 -Wall -Wextra -Werror -c firmware/audio/bass_dsp.c -o /tmp/gs-bass.o
+          cc -std=c11 -O2 -Wall -Wextra -Werror tests/render_pad_wav.c firmware/audio/pad_dsp.c -lm -o /tmp/gs-preview-strict
+
       - name: Install FM1 build Python dependencies
         run: python3 -m pip install --disable-pip-version-check Pillow
       - name: Get fm1-base
