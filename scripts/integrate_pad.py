@@ -242,6 +242,18 @@ app=app.replace(old, '''    if (gs_page == 0) {
         cv_text(8, 128, &FONT_XS, "SELECT: PAGE  HOME: TRACKS", C_GRAY);
     }''')
 app=app.replace('    gs_track = 0; gs_tracks_page = 1;', '    gs_track = 0; gs_page = 0; gs_page_num = 0; gs_tempo = 90;')
+# The template draws a second set of encoder counters over the new page UI.
+# Remove that obsolete overlay; GrooveScape already draws K1-K4 values itself.
+old_enc = '''    for (i = 0; i < NE; i++) {
+        int32_t x = 4 + (int32_t)(i % 4u) * 58, y = 88 + (int32_t)(i / 4u) * 28;
+        int lit = ui.turned_at[i] && now - ui.turned_at[i] < 300u;
+        cv_text(x, y, &FONT_XS, ENC_NAME[i], lit ? C_HI : C_GRAY);
+        int_text(ui.turns[i], t);
+        cv_text(x, y + 13, &FONT_XS, t, lit ? C_WHITE : C_DIM);
+    }
+'''
+assert app.count(old_enc) == 1, "Template encoder overlay changed"
+app = app.replace(old_enc, '')
 # Display the actual environment, rather than the now-unused sine/triangle setting.
 old='cv_text(112, 36, &FONT_XS, WAVE_NAME[set.wave], C_HI);'
 assert app.count(old)==1
