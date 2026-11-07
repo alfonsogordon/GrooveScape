@@ -57,17 +57,18 @@ app=app.replace(old,'        } else if (k == EN_PRESET) {\n            gs_env_in
 # SLOOP control mapping: ALGORITHM chooses track, SELECT changes tempo/pages.
 # HOME returns to TRACKS; tapping a function button opens/cycles its pages.
 # These are navigation shells, not claims that recording/sequencing is ready.
-app=app.replace('static unsigned gs_env_index;', 'static unsigned gs_env_index;\nstatic unsigned gs_track, gs_page, gs_page_num;\nstatic int gs_tempo = 90;')
+app=app.replace('static unsigned gs_env_index;', 'static unsigned gs_env_index;\nstatic unsigned gs_track, gs_page, gs_page_num;\nstatic int gs_tempo = 90;\nstatic const unsigned gs_page_count[10] = {2,3,3,4,3,2,3,3,3,2};')
 app=app.replace('        if (k == B_OCTDN)', '''        if (k == B_HOME) {
-            gs_page = 0; gs_page_num = 0;
-            app_say("HOME", "TRACKS");
+            if (gs_page == 0) gs_page_num = (gs_page_num + 1u) % 2u;
+            else { gs_page = 0; gs_page_num = 0; }
+            app_say("HOME", gs_page_num ? "VISUAL" : "TRACKS");
         } else if (k == B_ENV || k == B_LFO || k == B_FX ||
                    k == B_SEL || k == B_EDIT || k == B_ARP ||
                    k == B_SEQ || k == B_GLO || k == B_SAVE) {
             unsigned next = k == B_ENV ? 1u : k == B_LFO ? 2u :
                 k == B_FX ? 3u : k == B_SEL ? 4u : k == B_EDIT ? 5u :
                 k == B_ARP ? 6u : k == B_SEQ ? 7u : k == B_GLO ? 8u : 9u;
-            if (gs_page == next) gs_page_num = (gs_page_num + 1u) % 3u;
+            if (gs_page == next) gs_page_num = (gs_page_num + 1u) % gs_page_count[next];
             else { gs_page = next; gs_page_num = 0; }
             app_say("PAGE", BTN_NAME[k]);
         } else if (k == B_OCTDN)''')
@@ -79,7 +80,7 @@ app=app.replace('        } else if (k == EN_PRESET) {', '''        } else if (k 
                 int_text(gs_tempo, t);
                 app_say("BPM", t);
             } else {
-                gs_page_num = (unsigned)(((int)gs_page_num + e % 3 + 3) % 3);
+                gs_page_num = (unsigned)(((int)gs_page_num + e % (int)gs_page_count[gs_page] + (int)gs_page_count[gs_page]) % (int)gs_page_count[gs_page]);
                 app_say("PAGE", gs_page_num == 0 ? "1" : gs_page_num == 1 ? "2" : "3");
             }
         } else if (k == EN_PRESET) {''')
@@ -95,7 +96,7 @@ app=app.replace(old, '''    if (gs_page == 0) {
         static const char *const names[4] = {"TONESCAPE", "BASS", "DRUMS", "LEAD"};
         static const char *const desc[4] = {"AMBIENT", "SUB BASS", "COMING", "COMING"};
         static const uint16_t track_color[4] = {0x4C7F, 0x4E6A, 0xF6A0, 0xE3DF};
-        cv_text(8, 2, &FONT_B, "TRACKS", C_WHITE);
+        cv_text(8, 2, &FONT_B, gs_page_num ? "VISUAL" : "TRACKS", C_WHITE);
         for (i = 0; i < 4; i++) {
             int32_t y = 23 + (int32_t)i * 25;
             cv_rect(4, y, 5, 22, track_color[i]);
@@ -112,14 +113,23 @@ app=app.replace(old, '''    if (gs_page == 0) {
         static const uint16_t track_color[4] = {0x4C7F, 0x4E6A, 0xF6A0, 0xE3DF};
         cv_rect(4, 3, 5, 22, track_color[gs_track]);
         cv_text(15, 4, &FONT_B, pages[gs_page], C_WHITE);
-        cv_text(170, 7, &FONT_XS, gs_page_num == 0 ? "PAGE 1" : gs_page_num == 1 ? "PAGE 2" : "PAGE 3", C_HI);
+        cv_text(170, 7, &FONT_XS, gs_page_num == 0 ? "PAGE 1" : gs_page_num == 1 ? "PAGE 2" : gs_page_num == 2 ? "PAGE 3" : "PAGE 4", C_HI);
         cv_rect(6, 31, 228, 85, C_LINE);
         cv_text(14, 40, &FONT_XS, gs_track == 0 ? "TONESCAPE" : gs_track == 1 ? "BASS" : gs_track == 2 ? "DRUMS" : "LEAD", track_color[gs_track]);
-        cv_text(14, 67, &FONT_XS, gs_page == 1 ? "PAD SHAPE / ENVELOPE" :
-            gs_page == 2 ? "SLOW MOVEMENT" : gs_page == 3 ? "SPACE / WASH" :
-            gs_page == 4 ? "KEY / CHORD" : gs_page == 5 ? "EDIT (PLANNED)" :
-            gs_page == 6 ? "ARP (PLANNED)" : gs_page == 7 ? "STEPS (PLANNED)" :
-            gs_page == 8 ? "TRACK LEVELS (PLANNED)" : "SECTIONS (PLANNED)", C_GRAY);
+        static const char *const labels[10][4] = {
+            {"TRACKS", "VISUAL", "", ""},
+            {"ATTACK / RELEASE", "SHAPE / TONE", "LEVEL / WIDTH", ""},
+            {"RATE / DEPTH", "DRIFT / MOTION", "STEREO / MOD", ""},
+            {"REVERB / WASH", "DELAY / ECHO", "FILTER / EQ", "MASTER FX"},
+            {"KEY / SCALE", "CHORD / VOICING", "TRANSPOSE", ""},
+            {"SOUND / ENGINE", "TRACK EDIT", "", ""},
+            {"ARP MODE", "RATE / GATE", "PATTERN", ""},
+            {"STEPS / GRID", "NOTES / LENGTH", "QUANT / SWING", ""},
+            {"TRACK LEVELS", "MUTE / SOLO", "GLOBAL / BPM", ""},
+            {"SECTIONS A-D", "SAVE / LOAD", "", ""}
+        };
+        cv_text(14, 67, &FONT_XS, labels[gs_page][gs_page_num], C_WHITE);
+        cv_text(14, 95, &FONT_XS, "LAYOUT PREVIEW", C_GRAY);
         cv_text(8, 128, &FONT_XS, "SELECT: PAGE  HOME: TRACKS", C_GRAY);
     }''')
 app=app.replace('    gs_track = 0; gs_tracks_page = 1;', '    gs_track = 0; gs_page = 0; gs_page_num = 0; gs_tempo = 90;')
