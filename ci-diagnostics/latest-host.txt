@@ -1,8 +1,8 @@
-Commit: 8c60c7830d2f2b7a14145637178b698828e60ed5
-Host stage status: failure
-Run: 42422976829
+Commit: 793ffa7d5b0b90a225c90c84d805031c3c19150b
+Host stage status: success
+Run: 42423313156
 DSP test log (last 120 lines):
-DSP benchmark: 200 x 256 frames, CPU 354.39 ms, avg 1.772 ms/block, deadline 5.805 ms/block (host only)\nPASS: 44.1k stereo pad; peak=545890, wash tail=1824364774\nPASS: native bass, peak=1705858
+DSP benchmark: 200 x 256 frames, CPU 356.41 ms, avg 1.782 ms/block, deadline 5.805 ms/block (host only)\nPASS: 44.1k stereo pad; peak=545890, wash tail=1824364774\nPASS: native bass, peak=1705858
 Integration log (last 120 lines):
 Generated /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape. Build with: /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/tools/build.py /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape --host
 BLE disabled; prototype ID. DO NOT FLASH hardware.
@@ -16,20 +16,6 @@ In file included from /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/l
 /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/lib/sense.c:231:34: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
   231 |         rel = k->v > k->floor_ ? k->v - k->floor_ : 0u;
       |                                  ^~~~~~~~~~~~~~~~
-In file included from /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/host/plat_host.c:1641:
-/home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape/app.c: In function ‘app_init’:
-/home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape/app.c:157:34: error: stray ‘\’ in program
-  157 |     gs_bass_init(&gs_bass_voice);\n    gs_knobs[4][0][0] = 9; gs_knobs[4][0][1] = 0; gs_knobs[4][0][2] = 100;
-      |                                  ^
-/home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape/app.c:157:35: error: unknown type name ‘n’
-  157 |     gs_bass_init(&gs_bass_voice);\n    gs_knobs[4][0][0] = 9; gs_knobs[4][0][1] = 0; gs_knobs[4][0][2] = 100;
-      |                                   ^
-/home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape/app.c:157:60: error: invalid initializer
-  157 |     gs_bass_init(&gs_bass_voice);\n    gs_knobs[4][0][0] = 9; gs_knobs[4][0][1] = 0; gs_knobs[4][0][2] = 100;
-      |                                                            ^
-/home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape/app.c:157:40: warning: variable ‘gs_knobs’ set but not used [-Wunused-but-set-variable]
-  157 |     gs_bass_init(&gs_bass_voice);\n    gs_knobs[4][0][0] = 9; gs_knobs[4][0][1] = 0; gs_knobs[4][0][2] = 100;
-      |                                        ^~~~~~~~
 font T: BarlowSemiCondensed-SemiBold.ttf 10px h 12, digit adv 5, 3600 B
 font XS: BarlowSemiCondensed-SemiBold.ttf 12px h 15, digit adv 6, 7005 B
 font S: BarlowSemiCondensed-Medium.ttf 15px h 16, digit adv 7, 8576 B
@@ -38,5 +24,12 @@ font M: BarlowSemiCondensed-SemiBold.ttf 23px h 24, digit adv 12, 11832 B
 font L: BarlowSemiCondensed-Bold.ttf 31px h 32, digit adv 16, 19776 B
 font set barlow: 60782 B (approx)
 words: 3 own + 51 common -> /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape/web/words/95a41ce197.json (1059 B)
-build: the host simulator did not compile
+host     /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape/build/host/groovescape_host
 Host test log (last 120 lines):
+  ok note == 60
+  ok note == -1
+  ok octave == 1
+  ok note == 60
+  ok peak -28.5 dBFS (min -42)
+  ok note == -1
+host: 4948 ms simulated, 42 blits, render 101.1% of real time (host CPU)
