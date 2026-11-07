@@ -63,7 +63,8 @@ app=app.replace('static float voice_phase, voice_level, gain_now;   /* gain_now 
 app=app.replace('static volatile float voice_vel = 1.0f;', '')
 app=app.replace('    voice_vel = (float)vel / 127.0f;\n', '')
 app=app.replace('static void note_on(int32_t note, uint32_t vel)\n{', 'static void note_on(int32_t note, uint32_t vel)\n{\n    (void)vel;')
-app=app.replace('    voice_level = 0.0f;\n', '')
+# The legacy voice_level line in app_panic is removed only after the
+# original panic block has been replaced; avoid broad substitutions.
 # Keep the native screen and audio environment synchronized at boot.
 # In particular, resetting the DSP must not leave a stale UI selection.
 app=app.replace('    gs_pad_init(&gs_voice);', '    gs_env_index = 0;\n    gs_pad_init(&gs_voice);\n    gs_pad_environment(&gs_voice, gs_env_index, 0.65f);')
