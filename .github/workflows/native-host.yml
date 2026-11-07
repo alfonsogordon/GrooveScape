@@ -1,0 +1,32 @@
+name: FM1 native host integration
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'firmware/audio/**'
+      - 'scripts/integrate_pad.py'
+      - 'tests/test_pad.c'
+      - '.github/workflows/native-host.yml'
+jobs:
+  pad-and-host:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Native C DSP smoke test
+        run: |
+          cc -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer tests/test_pad.c firmware/audio/pad_dsp.c -lm -o /tmp/gs-pad-test
+          /tmp/gs-pad-test
+      - name: Get fm1-base
+        run: git clone --depth 1 --recurse-submodules https://github.com/charlesvestal/fm1-base.git .work/fm1-base
+      - name: Create GrooveScape firmware from upstream template
+        run: python3 scripts/integrate_pad.py
+      - name: Build host simulator
+        run: .work/fm1-base/tools/build.py .work/fm1-base/groovescape --host
+      - name: Build browser emulator
+        run: .work/fm1-base/tools/build.py .work/fm1-base/groovescape --web
+      - name: Upload emulator artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: groovescape-fm1-browser
+          path: .work/fm1-base/groovescape/build/emu/
