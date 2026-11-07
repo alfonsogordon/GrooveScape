@@ -9,7 +9,7 @@ namespace groovescape {
 // Original implementation based on the user's ToneScape V2 environment parameters.
 class PadVoice {
 public:
- static constexpr unsigned kSampleRate=48000;
+ static constexpr unsigned kSampleRate=44100;
  struct Environment {const char* name;float body,brightness,inharmonic,breath,space;};
  static constexpr std::array<Environment,16> environments{{
  {"Drift",.72f,.25f,.08f,.62f,.55f},{"Bloom",.82f,.33f,.06f,.40f,.64f},
