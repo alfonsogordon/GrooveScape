@@ -48,7 +48,10 @@ assert app.count(old)==1
 app=app.replace(old,'void app_init(void)\n{\n    gs_pad_init(&gs_voice);\n    gs_bass_init(&gs_bass_voice);')
 old='        else if (k == B_OCTUP)\n            octave_step(1);'
 assert app.count(old)==1
-app=app.replace(old,old+'\n        else if (k == B_FX) {\n            gs_env_index = (gs_env_index + 1u) % 16u;\n            gs_pad_environment(&gs_voice, gs_env_index, 0.65f);\n            app_say("PAD", gs_env_names[gs_env_index]);\n        }')
+# PRESET encoder steps the environment; no B_FX button exists upstream.
+old='        } else if (k == EN_PRESET) {\n            set.wave ^= 1u;\n            set_dirty = 1;\n            app_say("WAVE", WAVE_NAME[set.wave]);'
+assert app.count(old)==1
+app=app.replace(old,'        } else if (k == EN_PRESET) {\n            gs_env_index = (unsigned)(((int)gs_env_index + e % 16 + 16) % 16);\n            gs_pad_environment(&gs_voice, gs_env_index, 0.65f);\n            app_say("PAD", gs_env_names[gs_env_index]);')
 # Existing template wave setting is only 0..1; this integration keeps that
 # setting for persistence and uses a separate transient environment selection.
 # Avoid altering the stored wave's validation and existing PRESET behaviour.
