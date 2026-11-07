@@ -117,6 +117,11 @@ app=app[:start]+'''void app_render(int32_t *lr, uint32_t n, uint32_t master_q12)
     uint32_t bass_gain = (uint32_t)((uint64_t)master_q12 * (unsigned)gs_knobs[1][8][0][0] / 100u);
     uint32_t drum_gain = (uint32_t)((uint64_t)master_q12 * (unsigned)gs_knobs[2][8][0][0] / 100u);
     uint32_t lead_gain = (uint32_t)((uint64_t)master_q12 * (unsigned)gs_knobs[3][8][0][0] / 100u);
+    int any_solo = gs_track_solo[0] || gs_track_solo[1] || gs_track_solo[2] || gs_track_solo[3];
+    if (gs_track_mute[0] || (any_solo && !gs_track_solo[0])) pad_gain=0;
+    if (gs_track_mute[1] || (any_solo && !gs_track_solo[1])) bass_gain=0;
+    if (gs_track_mute[2] || (any_solo && !gs_track_solo[2])) drum_gain=0;
+    if (gs_track_mute[3] || (any_solo && !gs_track_solo[3])) lead_gain=0;
     gs_pad_render(&gs_voice, lr, n, pad_gain);\n    gs_pad_mix(&gs_fading_voice, lr, n, pad_gain);\n    gs_pad_mix(&gs_melody, lr, n, pad_gain);\n    gs_pad_mix(&gs_melody_fading, lr, n, pad_gain);\n    for (int i=0;i<2;i++) { gs_pad_mix(&gs_chord[i], lr, n, pad_gain); gs_pad_mix(&gs_chord_fading[i], lr, n, pad_gain); }\n    gs_bass_mix(&gs_bass_voice, lr, n, bass_gain);\n    gs_lead_mix(&gs_lead_voice, lr, n, lead_gain);\n    gs_drums_mix(&gs_drum_voice, lr, n, drum_gain, gs_tempo);
 }
 '''+app[end:]
@@ -165,7 +170,7 @@ app=app.replace(old,'        } else if (k == EN_PRESET) {\n            gs_env_in
 # SLOOP control mapping: ALGORITHM chooses track, SELECT changes tempo/pages.
 # HOME returns to TRACKS; tapping a function button opens/cycles its pages.
 # These are navigation shells, not claims that recording/sequencing is ready.
-app=app.replace('static unsigned gs_env_index;', 'static unsigned gs_env_index;\nstatic int gs_tempo = 90;\nstatic const unsigned gs_page_count[10] = {2,3,3,4,3,2,3,3,3,2};')
+app=app.replace('static unsigned gs_env_index;', 'static unsigned gs_env_index;\nstatic int gs_tempo = 90;\nstatic uint8_t gs_track_mute[4], gs_track_solo[4];\nstatic const unsigned gs_page_count[10] = {2,3,3,4,3,2,3,3,3,2};')
 app=app.replace('        if (k == B_OCTDN)', '''        if (k == B_HOME) {
             if (gs_page == 0) gs_page_num = (gs_page_num + 1u) % 2u;
             else { gs_page = 0; gs_page_num = 0; }
@@ -254,6 +259,10 @@ app=app.replace(old_encoder, '''        } else if (k == EN_SELECT) {
                     if (gs_track == 3 && knob == 0) gs_lead_voice.brightness = (float)*v/100.0f;
                     if (gs_track == 1 && knob == 0) gs_bass_voice.cutoff = 0.015f + (float)*v*0.003f;
                     if (gs_track == 2 && knob == 0) gs_drum_voice.pattern = (uint8_t)(*v >= 50);
+                }
+                if (gs_page == 8 && gs_page_num == 1) {
+                    if (knob == 0) gs_track_mute[gs_track] = *v >= 50;
+                    if (knob == 1) gs_track_solo[gs_track] = *v >= 50;
                 }
                 if (gs_page == 7 && gs_track == 2 && knob == 0) gs_drum_voice.playing = *v >= 50;
                 int_text(*v, t); app_say("PARAM", t);
