@@ -29,7 +29,7 @@ function note(freq,duration,gain,type='sine'){
  const pad=type==='sine',bass=type==='sawtooth',lead=type==='triangle';
  const voice=ctx.createGain(),filter=ctx.createBiquadFilter(),pan=ctx.createStereoPanner();
  filter.type='lowpass';filter.frequency.setValueAtTime(pad?1650:bass?720:2800,now);
- filter.Q.value=pad?.45:bass:1.1;
+ filter.Q.value=pad?.45:bass?.8:1.1;
  pan.pan.value=pad?(Math.random()*.5-.25):0;
  voice.gain.setValueAtTime(.00001,now);
  const attack=pad?.65:bass?.012:.022,release=pad?2.8:bass?.3:.65;
