@@ -23,7 +23,7 @@ for filename in ("pad_dsp.c","pad_dsp.h","bass_dsp.c","bass_dsp.h","extra_dsp.c"
 app=(target/"app.c").read_text()
 anchor='#include "fastmath.h"'
 assert app.count(anchor)==1
-app=app.replace(anchor,anchor+'\n#include "pad_dsp.h"\nstatic gs_pad gs_voice;\nstatic gs_pad gs_fading_voice;\nstatic gs_pad gs_chord[2], gs_chord_fading[2];\nstatic gs_pad gs_melody;\nstatic int gs_chord_select = 0;\nstatic int gs_root = 9, gs_minor = 0, gs_latch = 1, gs_last_chord = -1;\nstatic unsigned gs_track, gs_page, gs_page_num;\n#include \"bass_dsp.h\"\nstatic gs_bass gs_bass_voice;\n#include "extra_dsp.h"\nstatic gs_lead gs_lead_voice;\nstatic gs_drums gs_drum_voice;\nstatic int gs_pad_key = -1, gs_bass_key = -1;')
+app=app.replace(anchor,anchor+'\n#include "pad_dsp.h"\nstatic gs_pad gs_voice;\nstatic gs_pad gs_fading_voice;\nstatic gs_pad gs_chord[2], gs_chord_fading[2];\nstatic gs_pad gs_melody;\nstatic gs_pad gs_melody_fading;\nstatic int gs_chord_select = 0;\nstatic int gs_root = 9, gs_minor = 0, gs_latch = 1, gs_last_chord = -1;\nstatic unsigned gs_track, gs_page, gs_page_num;\n#include \"bass_dsp.h\"\nstatic gs_bass gs_bass_voice;\n#include "extra_dsp.h"\nstatic gs_lead gs_lead_voice;\nstatic gs_drums gs_drum_voice;\nstatic int gs_pad_key = -1, gs_bass_key = -1;')
 # Expose the active pad environment on the real FM1 screen.
 app=app.replace('static gs_pad gs_voice;', 'static gs_pad gs_voice;\nstatic unsigned gs_env_index;\nstatic int gs_intensity_percent = 35;\nstatic const char *const gs_env_names[16] = {\n    "DRIFT", "BLOOM", "EMBER", "GLASS CHOIR", "DEEP FOREST", "CATHEDRAL",\n    "OCEAN", "RIFT", "MIST", "MACHINE AIR", "TAPE GHOST", "HOLLOW EARTH",\n    "NEON WEATHER", "ICE BLOOM", "AURORA BODY", "NOIR VOID"\n};')
 old='    voice_vel = (float)vel / 127.0f;\n    voice_note = note;'
@@ -74,6 +74,16 @@ app=app.replace(old,'''    voice_note = note;
             if (delta < nearest) { nearest=delta; degree=i; }
         }
         int locked = note + scale[degree] - relative;
+        /* Preserve the previous melody as a fading voice rather than retuning
+           an audible oscillator. Fresh melody fades in organically. */
+        if (gs_melody.gate && gs_melody.target_hz != 440.0f*fm_exp2f((float)(locked-69)/12.0f)) {
+            gs_pad tmp = gs_melody_fading;
+            gs_melody_fading = gs_melody;
+            gs_melody = tmp;
+            gs_pad_note(&gs_melody_fading, 0.0f, 0);
+            gs_pad_panic(&gs_melody);
+            gs_pad_environment(&gs_melody, gs_env_index, (float)gs_intensity_percent/100.0f);
+        }
         gs_pad_note(&gs_melody, 440.0f*fm_exp2f((float)(locked-69)/12.0f), 1);\n    } else if (gs_track == 3) {\n        gs_lead_note(&gs_lead_voice, 440.0f*fm_exp2f((float)(note-69)/12.0f), 1);\n    } else if (gs_track == 1) {
         /* Bass uses the same scale/chord keyboard, with monophonic root voicing. */
         static const int major_scale[7] = {0,2,4,5,7,9,11};
@@ -107,15 +117,15 @@ app=app[:start]+'''void app_render(int32_t *lr, uint32_t n, uint32_t master_q12)
     uint32_t bass_gain = (uint32_t)((uint64_t)master_q12 * (unsigned)gs_knobs[1][8][0][0] / 100u);
     uint32_t drum_gain = (uint32_t)((uint64_t)master_q12 * (unsigned)gs_knobs[2][8][0][0] / 100u);
     uint32_t lead_gain = (uint32_t)((uint64_t)master_q12 * (unsigned)gs_knobs[3][8][0][0] / 100u);
-    gs_pad_render(&gs_voice, lr, n, pad_gain);\n    gs_pad_mix(&gs_fading_voice, lr, n, pad_gain);\n    gs_pad_mix(&gs_melody, lr, n, pad_gain);\n    for (int i=0;i<2;i++) { gs_pad_mix(&gs_chord[i], lr, n, pad_gain); gs_pad_mix(&gs_chord_fading[i], lr, n, pad_gain); }\n    gs_bass_mix(&gs_bass_voice, lr, n, bass_gain);\n    gs_lead_mix(&gs_lead_voice, lr, n, lead_gain);\n    gs_drums_mix(&gs_drum_voice, lr, n, drum_gain, gs_tempo);
+    gs_pad_render(&gs_voice, lr, n, pad_gain);\n    gs_pad_mix(&gs_fading_voice, lr, n, pad_gain);\n    gs_pad_mix(&gs_melody, lr, n, pad_gain);\n    gs_pad_mix(&gs_melody_fading, lr, n, pad_gain);\n    for (int i=0;i<2;i++) { gs_pad_mix(&gs_chord[i], lr, n, pad_gain); gs_pad_mix(&gs_chord_fading[i], lr, n, pad_gain); }\n    gs_bass_mix(&gs_bass_voice, lr, n, bass_gain);\n    gs_lead_mix(&gs_lead_voice, lr, n, lead_gain);\n    gs_drums_mix(&gs_drum_voice, lr, n, drum_gain, gs_tempo);
 }
 '''+app[end:]
 old='    voice_note = -1;\n    voice_level = 0.0f;'
 assert app.count(old)==1
-app=app.replace(old,'    voice_note = -1;\n    gs_pad_key = -1; gs_bass_key = -1;\n    gs_pad_panic(&gs_voice);\n    gs_pad_panic(&gs_fading_voice);\n    gs_pad_panic(&gs_melody);\n    for (int i=0;i<2;i++) { gs_pad_panic(&gs_chord[i]); gs_pad_panic(&gs_chord_fading[i]); }\n    gs_last_chord = -1;\n    gs_bass_panic(&gs_bass_voice);\n    gs_lead_note(&gs_lead_voice, 0, 0); gs_drum_voice.playing = 0;')
+app=app.replace(old,'    voice_note = -1;\n    gs_pad_key = -1; gs_bass_key = -1;\n    gs_pad_panic(&gs_voice);\n    gs_pad_panic(&gs_fading_voice);\n    gs_pad_panic(&gs_melody); gs_pad_panic(&gs_melody_fading);\n    for (int i=0;i<2;i++) { gs_pad_panic(&gs_chord[i]); gs_pad_panic(&gs_chord_fading[i]); }\n    gs_last_chord = -1;\n    gs_bass_panic(&gs_bass_voice);\n    gs_lead_note(&gs_lead_voice, 0, 0); gs_drum_voice.playing = 0;')
 old='void app_init(void)\n{'
 assert app.count(old)==1
-app=app.replace(old,'void app_init(void)\n{\n    gs_pad_init(&gs_voice);\n    gs_pad_init(&gs_fading_voice);\n    gs_pad_init(&gs_melody);\n    for (int i=0;i<2;i++) { gs_pad_init(&gs_chord[i]); gs_pad_init(&gs_chord_fading[i]); }\n    gs_bass_init(&gs_bass_voice);\n    gs_lead_init(&gs_lead_voice); gs_drums_init(&gs_drum_voice);')
+app=app.replace(old,'void app_init(void)\n{\n    gs_pad_init(&gs_voice);\n    gs_pad_init(&gs_fading_voice);\n    gs_pad_init(&gs_melody); gs_pad_init(&gs_melody_fading);\n    for (int i=0;i<2;i++) { gs_pad_init(&gs_chord[i]); gs_pad_init(&gs_chord_fading[i]); }\n    gs_bass_init(&gs_bass_voice);\n    gs_lead_init(&gs_lead_voice); gs_drums_init(&gs_drum_voice);')
 # Physical keyboard: white notes, black chord triggers, last black latch.
 app=app.replace('            note_on(note, v);', '''            if (gs_track == 2) {
                 if (gs_page != 7) {
