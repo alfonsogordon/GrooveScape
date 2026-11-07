@@ -52,7 +52,7 @@ app=app.replace(old,old+'\n        else if (k == B_FX) {\n            gs_env_ind
 # Existing template wave setting is only 0..1; this integration keeps that
 # setting for persistence and uses a separate transient environment selection.
 # Avoid altering the stored wave's validation and existing PRESET behaviour.
-app=app.replace('            set.wave = (set.wave + 1u) % 16u;\n            gs_pad_environment(&gs_voice, set.wave, 0.65f);\n            set_dirty = 1;', '            gs_env_index = (gs_env_index + 1u) % 16u;\n            gs_pad_environment(&gs_voice, gs_env_index, 0.65f);')
+
 # Display the actual environment, rather than the now-unused sine/triangle setting.
 old='cv_text(112, 36, &FONT_XS, WAVE_NAME[set.wave], C_HI);'
 assert app.count(old)==1
