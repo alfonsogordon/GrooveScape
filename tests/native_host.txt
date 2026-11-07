@@ -1,6 +1,12 @@
 # GrooveScape fm1-base host simulator smoke test (BLE disabled)
 wait 600
-shot boot.png
+shot tracks-home.png
+tap HOME
+wait 50
+shot controls.png
+tap HOME
+wait 50
+shot tracks-return.png
 key 7 down
 wait 150
 expect note 60
