@@ -28,6 +28,17 @@ jobs:
         run: git clone --depth 1 --recurse-submodules https://github.com/charlesvestal/fm1-base.git .work/fm1-base
       - name: Create GrooveScape firmware from upstream template
         run: python3 scripts/integrate_pad.py
+      - name: Check generated native integration before build
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          app = Path('.work/fm1-base/groovescape/app.c').read_text()
+          assert app.count('gs_pad_render(&gs_voice, lr, n, master_q12);') == 1
+          assert app.count('gs_pad_environment(&gs_voice,') == 2
+          assert 'gs_env_names[gs_env_index]' in app
+          assert 'voice_level' not in app
+          print('Native app integration and environment controls verified')
+          PY
       - name: Build host simulator
         run: |
           set -o pipefail
