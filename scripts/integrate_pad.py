@@ -23,12 +23,12 @@ for filename in ("pad_dsp.c","pad_dsp.h","bass_dsp.c","bass_dsp.h"):
 app=(target/"app.c").read_text()
 anchor='#include "fastmath.h"'
 assert app.count(anchor)==1
-app=app.replace(anchor,anchor+'\n#include "pad_dsp.h"\nstatic gs_pad gs_voice;\n#include \"bass_dsp.h\"\nstatic gs_bass gs_bass_voice;\nstatic int gs_pad_key = -1, gs_bass_key = -1;')
+app=app.replace(anchor,anchor+'\n#include "pad_dsp.h"\nstatic gs_pad gs_voice;\nstatic gs_pad gs_fading_voice;\nstatic unsigned gs_voice_slot;\n#include \"bass_dsp.h\"\nstatic gs_bass gs_bass_voice;\nstatic int gs_pad_key = -1, gs_bass_key = -1;')
 # Expose the active pad environment on the real FM1 screen.
 app=app.replace('static gs_pad gs_voice;', 'static gs_pad gs_voice;\nstatic unsigned gs_env_index;\nstatic int gs_intensity_percent = 35;\nstatic const char *const gs_env_names[16] = {\n    "DRIFT", "BLOOM", "EMBER", "GLASS CHOIR", "DEEP FOREST", "CATHEDRAL",\n    "OCEAN", "RIFT", "MIST", "MACHINE AIR", "TAPE GHOST", "HOLLOW EARTH",\n    "NEON WEATHER", "ICE BLOOM", "AURORA BODY", "NOIR VOID"\n};')
 old='    voice_vel = (float)vel / 127.0f;\n    voice_note = note;'
 assert app.count(old)==1
-app=app.replace(old,'    voice_note = note;\n    if (note < 48) {\n        gs_bass_key = note;\n        gs_bass_note(&gs_bass_voice, 440.0f * fm_exp2f((float)(note - 69) / 12.0f), 1);\n    } else {\n        gs_pad_key = note;\n        gs_pad_note(&gs_voice, 440.0f * fm_exp2f((float)(note - 69) / 12.0f), 1);\n    }')
+app=app.replace(old,'    voice_note = note;\n    if (note < 48) {\n        gs_bass_key = note;\n        gs_bass_note(&gs_bass_voice, 440.0f * fm_exp2f((float)(note - 69) / 12.0f), 1);\n    } else {\n        gs_pad_key = note;\n        gs_pad_note(&gs_fading_voice, 0.0f, 0);\n        gs_pad tmp = gs_fading_voice;\n        gs_fading_voice = gs_voice;\n        gs_voice = tmp;\n        gs_pad_panic(&gs_voice);\n        gs_pad_environment(&gs_voice, gs_env_index, (float)gs_intensity_percent / 100.0f);\n        gs_pad_note(&gs_voice, 440.0f * fm_exp2f((float)(note - 69) / 12.0f), 1);\n    }')
 old='    if (voice_note == note)\n        voice_note = -1;'
 assert app.count(old)==1
 app=app.replace(old,'    if (voice_note == note) voice_note = -1;\n    if (gs_pad_key == note) { gs_pad_note(&gs_voice, 0.0f, 0); gs_pad_key = -1; }\n    if (gs_bass_key == note) { gs_bass_note(&gs_bass_voice, 0.0f, 0); gs_bass_key = -1; }')
@@ -37,15 +37,15 @@ end=app.index('\nvoid app_panic(void)',start)
 app=app[:start]+'''void app_render(int32_t *lr, uint32_t n, uint32_t master_q12)
 {
     midi_in();
-    gs_pad_render(&gs_voice, lr, n, master_q12);\n    gs_bass_mix(&gs_bass_voice, lr, n, master_q12);
+    gs_pad_render(&gs_voice, lr, n, master_q12);\n    gs_pad_render(&gs_fading_voice, lr, n, master_q12);\n    gs_bass_mix(&gs_bass_voice, lr, n, master_q12);
 }
 '''+app[end:]
 old='    voice_note = -1;\n    voice_level = 0.0f;'
 assert app.count(old)==1
-app=app.replace(old,'    voice_note = -1;\n    gs_pad_key = -1; gs_bass_key = -1;\n    gs_pad_panic(&gs_voice);\n    gs_bass_panic(&gs_bass_voice);')
+app=app.replace(old,'    voice_note = -1;\n    gs_pad_key = -1; gs_bass_key = -1;\n    gs_pad_panic(&gs_voice);\n    gs_pad_panic(&gs_fading_voice);\n    gs_bass_panic(&gs_bass_voice);')
 old='void app_init(void)\n{'
 assert app.count(old)==1
-app=app.replace(old,'void app_init(void)\n{\n    gs_pad_init(&gs_voice);\n    gs_bass_init(&gs_bass_voice);')
+app=app.replace(old,'void app_init(void)\n{\n    gs_pad_init(&gs_voice);\n    gs_pad_init(&gs_fading_voice);\n    gs_bass_init(&gs_bass_voice);')
 # The pad track is always ToneScape V2. PRESET selects one of its original\n# 16 environments, never an alternative synth engine. ALGO adjusts intensity.
 old='        } else if (k == EN_PRESET) {\n            set.wave ^= 1u;\n            set_dirty = 1;\n            app_say("WAVE", WAVE_NAME[set.wave]);'
 assert app.count(old)==1
