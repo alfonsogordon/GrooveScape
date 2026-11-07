@@ -228,6 +228,14 @@ app=app.replace(old_encoder, '''        } else if (k == EN_SELECT) {
                     gs_env_index = (unsigned)*v % 16u;
                     gs_pad_environment(&gs_voice, gs_env_index, (float)gs_intensity_percent/100.0f);
                 }
+                if (gs_track == 0 && gs_page == 1 && gs_page_num == 0 && knob < 2) {
+                    float seconds = 0.1f + (float)*v * (knob == 0 ? .299f : .399f);
+                    gs_pad *pads[7] = {&gs_voice,&gs_fading_voice,&gs_melody,&gs_chord[0],&gs_chord[1],&gs_chord_fading[0],&gs_chord_fading[1]};
+                    for (int n=0;n<7;n++) {
+                        if (knob == 0) pads[n]->attack_sec = seconds;
+                        else pads[n]->release_sec = seconds;
+                    }
+                }
                 if (gs_page == 5 && gs_page_num == 0) {
                     if (gs_track == 3 && knob == 0) gs_lead_voice.brightness = (float)*v/100.0f;
                     if (gs_track == 1 && knob == 0) gs_bass_voice.cutoff = 0.015f + (float)*v*0.003f;
