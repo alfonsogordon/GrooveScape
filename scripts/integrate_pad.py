@@ -167,6 +167,60 @@ app=app.replace('        } else if (k == EN_ALGO) {', '''        } else if (k ==
             gs_track = (unsigned)(((int)gs_track + e % 4 + 4) % 4);
             app_say("TRACK", gs_track == 0 ? "TONESCAPE" : gs_track == 1 ? "BASS" : gs_track == 2 ? "DRUMS PLANNED" : "LEAD PLANNED");
         } else if (k == EN_K1) {''')
+# The upstream template has no EN_SELECT/EN_K1 branches. Replace its real
+# encoder fallback, otherwise all page/track/knob changes are display-only.
+old_encoder = '''        } else {
+            int_text(ui.turns[k], t);
+            app_say(ENC_NAME[k], t);
+        }
+    }
+    if (keys != ui.keys || btn != ui.btn)'''
+assert app.count(old_encoder) == 1, "Upstream encoder handler changed"
+app=app.replace(old_encoder, '''        } else if (k == EN_SELECT) {
+            if (gs_page == 0) {
+                gs_tempo += e;
+                if (gs_tempo < 40) gs_tempo = 40;
+                if (gs_tempo > 240) gs_tempo = 240;
+                int_text(gs_tempo, t); app_say("BPM", t);
+            } else {
+                int count = (int)gs_page_count[gs_page];
+                gs_page_num = (unsigned)(((int)gs_page_num + e % count + count) % count);
+                int_text((int32_t)gs_page_num+1, t); app_say("PAGE", t);
+            }
+        } else if (k == EN_ALGO) {
+            gs_track = (unsigned)(((int)gs_track + e % 4 + 4) % 4);
+            app_say("TRACK", gs_track == 0 ? "TONESCAPE" : gs_track == 1 ? "BASS" : gs_track == 2 ? "DRUMS" : "LEAD");
+        } else if (k >= EN_K1 && k <= EN_K4) {
+            unsigned knob = (unsigned)(k - EN_K1);
+            if (gs_page == 0 && gs_track == 0 && knob == 0) {
+                gs_intensity_percent += e * 5;
+                if (gs_intensity_percent < 0) gs_intensity_percent = 0;
+                if (gs_intensity_percent > 100) gs_intensity_percent = 100;
+                gs_pad_environment(&gs_voice, gs_env_index, (float)gs_intensity_percent/100.0f);
+                int_text(gs_intensity_percent, t); app_say("INTENSITY", t);
+            } else {
+                int *v = &gs_knobs[gs_track][gs_page][gs_page_num][knob];
+                *v += e;
+                if (*v < 0) *v = 0;
+                if (*v > 100) *v = 100;
+                if (gs_page == 4 && gs_page_num == 0) {
+                    if (knob == 0) gs_root = *v % 12;
+                    if (knob == 1) gs_minor = *v >= 50;
+                    if (knob == 2) gs_latch = *v >= 50;
+                    gs_last_chord = -1;
+                }
+                if (gs_track == 0 && gs_page == 5 && gs_page_num == 0 && knob == 0) {
+                    gs_env_index = (unsigned)*v % 16u;
+                    gs_pad_environment(&gs_voice, gs_env_index, (float)gs_intensity_percent/100.0f);
+                }
+                int_text(*v, t); app_say("PARAM", t);
+            }
+        } else {
+            int_text(ui.turns[k], t);
+            app_say(ENC_NAME[k], t);
+        }
+    }
+    if (keys != ui.keys || btn != ui.btn)''')
 # Four physical encoders follow the selected screen, with separate page values.
 # K1 on TRACKS continues to control the real ToneScape intensity.
 app=app.replace('static int gs_tempo = 90;', 'static int gs_tempo = 90;\nstatic int gs_knobs[4][10][4][4];')
