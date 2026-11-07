@@ -23,13 +23,13 @@ for filename in ("pad_dsp.c","pad_dsp.h","bass_dsp.c","bass_dsp.h"):
 app=(target/"app.c").read_text()
 anchor='#include "fastmath.h"'
 assert app.count(anchor)==1
-app=app.replace(anchor,anchor+'\n#include "pad_dsp.h"\nstatic gs_pad gs_voice;\nstatic gs_pad gs_fading_voice;\nstatic gs_pad gs_chord[2], gs_chord_fading[2];\nstatic int gs_root = 9, gs_minor = 0, gs_latch = 1, gs_last_chord = -1;\nstatic unsigned gs_track, gs_page, gs_page_num;\n#include \"bass_dsp.h\"\nstatic gs_bass gs_bass_voice;\nstatic int gs_pad_key = -1, gs_bass_key = -1;')
+app=app.replace(anchor,anchor+'\n#include "pad_dsp.h"\nstatic gs_pad gs_voice;\nstatic gs_pad gs_fading_voice;\nstatic gs_pad gs_chord[2], gs_chord_fading[2];\nstatic gs_pad gs_melody;\nstatic int gs_chord_select = 0;\nstatic int gs_root = 9, gs_minor = 0, gs_latch = 1, gs_last_chord = -1;\nstatic unsigned gs_track, gs_page, gs_page_num;\n#include \"bass_dsp.h\"\nstatic gs_bass gs_bass_voice;\nstatic int gs_pad_key = -1, gs_bass_key = -1;')
 # Expose the active pad environment on the real FM1 screen.
 app=app.replace('static gs_pad gs_voice;', 'static gs_pad gs_voice;\nstatic unsigned gs_env_index;\nstatic int gs_intensity_percent = 35;\nstatic const char *const gs_env_names[16] = {\n    "DRIFT", "BLOOM", "EMBER", "GLASS CHOIR", "DEEP FOREST", "CATHEDRAL",\n    "OCEAN", "RIFT", "MIST", "MACHINE AIR", "TAPE GHOST", "HOLLOW EARTH",\n    "NEON WEATHER", "ICE BLOOM", "AURORA BODY", "NOIR VOID"\n};')
 old='    voice_vel = (float)vel / 127.0f;\n    voice_note = note;'
 assert app.count(old)==1
 app=app.replace(old,'''    voice_note = note;
-    if (gs_track == 0) {
+    if (gs_track == 0 && gs_chord_select) {
         static const int major_steps[7] = {0,2,4,5,7,9,11};
         static const int minor_steps[7] = {0,2,3,5,7,8,10};
         const int *steps = gs_minor ? minor_steps : major_steps;
@@ -62,28 +62,35 @@ app=app.replace(old,'''    voice_note = note;
             gs_pad_note(active[i], 440.0f*fm_exp2f((float)(notes[i]-69)/12.0f), 1);
         }
         gs_pad_key = note;
-    } else if (gs_track == 1) {
+    } else if (gs_track == 0) {\n        gs_pad_note(&gs_melody, 440.0f*fm_exp2f((float)(note-69)/12.0f), 1);\n    } else if (gs_track == 1) {
         gs_bass_key = note;
         gs_bass_note(&gs_bass_voice, 440.0f*fm_exp2f((float)(note-69)/12.0f), 1);
     }''')
 
 old='    if (voice_note == note)\n        voice_note = -1;'
 assert app.count(old)==1
-app=app.replace(old,'    if (voice_note == note) voice_note = -1;\n    if (gs_bass_key == note) { gs_bass_note(&gs_bass_voice, 0.0f, 0); gs_bass_key = -1; }')
+app=app.replace(old,'    if (voice_note == note) voice_note = -1;\n    if (gs_track == 0 && !gs_chord_select) gs_pad_note(&gs_melody, 0.0f, 0);\n    if (gs_bass_key == note) { gs_bass_note(&gs_bass_voice, 0.0f, 0); gs_bass_key = -1; }')
 start=app.index('void app_render(int32_t *lr, uint32_t n, uint32_t master_q12)')
 end=app.index('\nvoid app_panic(void)',start)
 app=app[:start]+'''void app_render(int32_t *lr, uint32_t n, uint32_t master_q12)
 {
     midi_in();
-    gs_pad_render(&gs_voice, lr, n, master_q12);\n    gs_pad_mix(&gs_fading_voice, lr, n, master_q12);\n    for (int i=0;i<2;i++) { gs_pad_mix(&gs_chord[i], lr, n, master_q12); gs_pad_mix(&gs_chord_fading[i], lr, n, master_q12); }\n    gs_bass_mix(&gs_bass_voice, lr, n, master_q12);
+    gs_pad_render(&gs_voice, lr, n, master_q12);\n    gs_pad_mix(&gs_fading_voice, lr, n, master_q12);\n    gs_pad_mix(&gs_melody, lr, n, master_q12);\n    for (int i=0;i<2;i++) { gs_pad_mix(&gs_chord[i], lr, n, master_q12); gs_pad_mix(&gs_chord_fading[i], lr, n, master_q12); }\n    gs_bass_mix(&gs_bass_voice, lr, n, master_q12);
 }
 '''+app[end:]
 old='    voice_note = -1;\n    voice_level = 0.0f;'
 assert app.count(old)==1
-app=app.replace(old,'    voice_note = -1;\n    gs_pad_key = -1; gs_bass_key = -1;\n    gs_pad_panic(&gs_voice);\n    gs_pad_panic(&gs_fading_voice);\n    for (int i=0;i<2;i++) { gs_pad_panic(&gs_chord[i]); gs_pad_panic(&gs_chord_fading[i]); }\n    gs_last_chord = -1;\n    gs_bass_panic(&gs_bass_voice);')
+app=app.replace(old,'    voice_note = -1;\n    gs_pad_key = -1; gs_bass_key = -1;\n    gs_pad_panic(&gs_voice);\n    gs_pad_panic(&gs_fading_voice);\n    gs_pad_panic(&gs_melody);\n    for (int i=0;i<2;i++) { gs_pad_panic(&gs_chord[i]); gs_pad_panic(&gs_chord_fading[i]); }\n    gs_last_chord = -1;\n    gs_bass_panic(&gs_bass_voice);')
 old='void app_init(void)\n{'
 assert app.count(old)==1
-app=app.replace(old,'void app_init(void)\n{\n    gs_pad_init(&gs_voice);\n    gs_pad_init(&gs_fading_voice);\n    for (int i=0;i<2;i++) { gs_pad_init(&gs_chord[i]); gs_pad_init(&gs_chord_fading[i]); }\n    gs_bass_init(&gs_bass_voice);')
+app=app.replace(old,'void app_init(void)\n{\n    gs_pad_init(&gs_voice);\n    gs_pad_init(&gs_fading_voice);\n    gs_pad_init(&gs_melody);\n    for (int i=0;i<2;i++) { gs_pad_init(&gs_chord[i]); gs_pad_init(&gs_chord_fading[i]); }\n    gs_bass_init(&gs_bass_voice);')
+# Physical keyboard: white notes, black chord triggers, last black latch.
+app=app.replace('            note_on(note, v);', '''            if (gs_track != 2) {
+                gs_chord_select = (k==1 || k==3 || k==5 || k==8 || k==10 || k==13);
+                if (k == 15) { gs_latch = !gs_latch; app_say("CHORD LATCH", gs_latch ? "ON" : "OFF"); }
+                else note_on(note, v);
+            }''')
+app=app.replace('            note_off(note);', '            if (k != 15) note_off(note);')
 # The pad track is always ToneScape V2. PRESET selects one of its original\n# 16 environments, never an alternative synth engine. ALGO adjusts intensity.
 old='        } else if (k == EN_PRESET) {\n            set.wave ^= 1u;\n            set_dirty = 1;\n            app_say("WAVE", WAVE_NAME[set.wave]);'
 assert app.count(old)==1
