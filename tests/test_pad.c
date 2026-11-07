@@ -12,5 +12,7 @@ int main(void){
  if(peak<1000||peak>8388607||energy==0){fprintf(stderr,"FAIL peak %d\n",peak);return 1;}
  gs_pad_note(&p,110.0f,0);for(unsigned i=0;i<1000;i++)gs_pad_render(&p,buffer,256,4096);
  if(p.env>0.5f){fprintf(stderr,"FAIL release %f\n",p.env);return 2;}
+ gs_pad_note(&p,110.0f,1);gs_pad_render(&p,buffer,256,4096);gs_pad_panic(&p);gs_pad_render(&p,buffer,256,4096);
+ for(unsigned i=0;i<512;i++)if(buffer[i]!=0){fprintf(stderr,"FAIL panic nonzero sample\n");return 3;}
  printf("PASS: 44.1k stereo pad; peak=%d, release=%f\n",peak,p.env);return 0;
 }
