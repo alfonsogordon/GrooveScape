@@ -103,7 +103,11 @@ end=app.index('\nvoid app_panic(void)',start)
 app=app[:start]+'''void app_render(int32_t *lr, uint32_t n, uint32_t master_q12)
 {
     midi_in();
-    gs_pad_render(&gs_voice, lr, n, master_q12);\n    gs_pad_mix(&gs_fading_voice, lr, n, master_q12);\n    gs_pad_mix(&gs_melody, lr, n, master_q12);\n    for (int i=0;i<2;i++) { gs_pad_mix(&gs_chord[i], lr, n, master_q12); gs_pad_mix(&gs_chord_fading[i], lr, n, master_q12); }\n    gs_bass_mix(&gs_bass_voice, lr, n, master_q12);\n    gs_lead_mix(&gs_lead_voice, lr, n, master_q12);\n    gs_drums_mix(&gs_drum_voice, lr, n, master_q12, gs_tempo);
+    uint32_t pad_gain = (uint32_t)((uint64_t)master_q12 * (unsigned)gs_knobs[0][8][0][0] / 100u);
+    uint32_t bass_gain = (uint32_t)((uint64_t)master_q12 * (unsigned)gs_knobs[1][8][0][0] / 100u);
+    uint32_t drum_gain = (uint32_t)((uint64_t)master_q12 * (unsigned)gs_knobs[2][8][0][0] / 100u);
+    uint32_t lead_gain = (uint32_t)((uint64_t)master_q12 * (unsigned)gs_knobs[3][8][0][0] / 100u);
+    gs_pad_render(&gs_voice, lr, n, pad_gain);\n    gs_pad_mix(&gs_fading_voice, lr, n, pad_gain);\n    gs_pad_mix(&gs_melody, lr, n, pad_gain);\n    for (int i=0;i<2;i++) { gs_pad_mix(&gs_chord[i], lr, n, pad_gain); gs_pad_mix(&gs_chord_fading[i], lr, n, pad_gain); }\n    gs_bass_mix(&gs_bass_voice, lr, n, bass_gain);\n    gs_lead_mix(&gs_lead_voice, lr, n, lead_gain);\n    gs_drums_mix(&gs_drum_voice, lr, n, drum_gain, gs_tempo);
 }
 '''+app[end:]
 old='    voice_note = -1;\n    voice_level = 0.0f;'
@@ -328,7 +332,7 @@ app=app.replace('static void note_on(int32_t note, uint32_t vel)\n{', 'static vo
 # Keep the native screen and audio environment synchronized at boot.
 # In particular, resetting the DSP must not leave a stale UI selection.
 # Initialise scale editor to actual ToneScape defaults rather than zeroed placeholders.
-app=app.replace('    gs_bass_init(&gs_bass_voice);\n    gs_lead_init(&gs_lead_voice); gs_drums_init(&gs_drum_voice);', '    gs_bass_init(&gs_bass_voice);\n    gs_lead_init(&gs_lead_voice); gs_drums_init(&gs_drum_voice);\n    gs_knobs[0][4][0][0] = 9; gs_knobs[0][4][0][1] = 0; gs_knobs[0][4][0][2] = 100;')
+app=app.replace('    gs_bass_init(&gs_bass_voice);\n    gs_lead_init(&gs_lead_voice); gs_drums_init(&gs_drum_voice);', '    gs_bass_init(&gs_bass_voice);\n    gs_lead_init(&gs_lead_voice); gs_drums_init(&gs_drum_voice);\n    for (int tr=0;tr<4;tr++) gs_knobs[tr][8][0][0]=100;\n    gs_knobs[0][4][0][0] = 9; gs_knobs[0][4][0][1] = 0; gs_knobs[0][4][0][2] = 100;')
 app=app.replace('    gs_pad_init(&gs_voice);', '    gs_pad_key = -1; gs_bass_key = -1;\n    gs_env_index = 0;\n    gs_intensity_percent = 35;\n    gs_pad_init(&gs_voice);\n    gs_pad_environment(&gs_voice, gs_env_index, 0.35f);')
 # The template only supports BLE when configured; keep all Bluetooth paths
 # off in this unverified native prototype to avoid hardware crash regressions.
@@ -340,7 +344,7 @@ assert app.count('void app_render(') == 1
 # Preserve the template's original settings schema for this host-only prototype.
 # Catch template drift before passing generated C to the compiler.
 assert app.count('gs_pad_render(&gs_voice, lr, n, master_q12);') == 1
-assert app.count('gs_bass_mix(&gs_bass_voice, lr, n, master_q12);') == 1
+assert app.count('gs_bass_mix(&gs_bass_voice, lr, n, bass_gain);') == 1
 assert app.count('gs_pad_panic(&gs_voice);') >= 1
 assert app.count('gs_pad_init(&gs_voice);') >= 1
 assert 'voice_level' not in app and 'voice_phase' not in app and 'gain_now' not in app
