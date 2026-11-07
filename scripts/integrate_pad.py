@@ -90,7 +90,7 @@ app=app.replace('        } else if (k == EN_ALGO) {', '''        } else if (k ==
         } else if (k == EN_K1) {''')
 # Four physical encoders follow the selected screen, with separate page values.
 # K1 on TRACKS continues to control the real ToneScape intensity.
-app=app.replace('static int gs_tempo = 90;', 'static int gs_tempo = 90;\\nstatic int gs_knobs[10][4][4];')
+app=app.replace('static int gs_tempo = 90;', 'static int gs_tempo = 90;\nstatic int gs_knobs[10][4][4];')
 app=app.replace('        } else if (k == EN_K1) {', '''        } else if (k >= EN_K1 && k <= EN_K4) {
             unsigned knob = (unsigned)(k - EN_K1);
             if (gs_page == 0 && gs_track == 0 && knob == 0) {''')
