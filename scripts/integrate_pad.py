@@ -57,7 +57,7 @@ app=app.replace(old,'        } else if (k == EN_PRESET) {\n            gs_env_in
 # SLOOP control mapping: ALGORITHM chooses track, SELECT changes tempo/pages.
 # HOME returns to TRACKS; tapping a function button opens/cycles its pages.
 # These are navigation shells, not claims that recording/sequencing is ready.
-app=app.replace('static unsigned gs_env_index;', 'static unsigned gs_env_index;\\nstatic unsigned gs_track, gs_page, gs_page_num;\\nstatic int gs_tempo = 90;')
+app=app.replace('static unsigned gs_env_index;', 'static unsigned gs_env_index;\nstatic unsigned gs_track, gs_page, gs_page_num;\nstatic int gs_tempo = 90;')
 app=app.replace('        if (k == B_OCTDN)', '''        if (k == B_HOME) {
             gs_page = 0; gs_page_num = 0;
             app_say("HOME", "TRACKS");
@@ -89,7 +89,7 @@ app=app.replace('        } else if (k == EN_ALGO) {', '''        } else if (k ==
         } else if (k == EN_K1) {''')
 # The last replacement redirects the former intensity branch into K1, so
 # ALGORITHM remains dedicated to track selection like SLOOP.
-old='    for (i = 0; i < NB; i++)\\n        cell(4 + (int32_t)(i % 4u) * 58, (int32_t)(i / 4u) * 21, 56, BTN_NAME[i], (ui.btn >> i) & 1u);'
+old='    for (i = 0; i < NB; i++)\n        cell(4 + (int32_t)(i % 4u) * 58, (int32_t)(i / 4u) * 21, 56, BTN_NAME[i], (ui.btn >> i) & 1u);'
 assert app.count(old)==1
 app=app.replace(old, '''    if (gs_page == 0) {
         static const char *const names[4] = {"TONESCAPE", "BASS", "DRUMS", "LEAD"};
