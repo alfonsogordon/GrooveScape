@@ -61,6 +61,26 @@ jobs:
           name: groovescape-build-diagnostics
           path: .work/diagnostics/
           if-no-files-found: ignore
+      - name: Publish failed host diagnostics for automated debugging
+        if: failure() && github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p ci-diagnostics
+          {
+            echo "Commit: $GITHUB_SHA"
+            echo "Run: $GITHUB_RUN_ID"
+            echo "Host build log (last 120 lines):"
+            tail -n 120 /tmp/groovescape-host-build.log 2>/dev/null || true
+            echo "Host test log (last 120 lines):"
+            tail -n 120 /tmp/groovescape-host-test.log 2>/dev/null || true
+          } > ci-diagnostics/latest-host.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ci-diagnostics/latest-host.txt
+          if ! git diff --cached --quiet; then
+            git commit -m "Record native CI host failure diagnostics [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
       - name: Upload host smoke-test evidence
         if: always()
         uses: actions/upload-artifact@v4
