@@ -102,7 +102,13 @@ app=app.replace('            note_on(note, v);', '''            if (gs_track != 
                 if (k == 15) { gs_latch = !gs_latch; app_say("CHORD LATCH", gs_latch ? "ON" : "OFF"); }
                 else note_on(note, v);
             }''')
-app=app.replace('            note_off(note);', '            if (k != 15) note_off(note);')
+app=app.replace('            note_off(note);', '''            if (k == 1 || k == 3 || k == 5 || k == 8 || k == 10 || k == 13) {
+                if (!gs_latch && gs_track == 0) {
+                    gs_pad_note(&gs_voice, 0.0f, 0);
+                    for (int i=0;i<2;i++) gs_pad_note(&gs_chord[i], 0.0f, 0);
+                    gs_last_chord = -1;
+                }
+            } else if (k != 15) note_off(note);''')
 # The pad track is always ToneScape V2. PRESET selects one of its original\n# 16 environments, never an alternative synth engine. ALGO adjusts intensity.
 old='        } else if (k == EN_PRESET) {\n            set.wave ^= 1u;\n            set_dirty = 1;\n            app_say("WAVE", WAVE_NAME[set.wave]);'
 assert app.count(old)==1
