@@ -82,7 +82,7 @@ void gs_pad_render(gs_pad *p,int32_t *lr,uint32_t frames,uint32_t master_q12){
   static const float ratios[4]={0.997f,1.0f,1.003f,0.5f};
   static const float pans[4]={-0.72f,0.64f,-0.27f,0.32f};
   float left=0.0f,right=0.0f;
-  for(unsigned v=0;v<4;v++){
+  if (p->gate || p->env > 0.00005f) {\n  for(unsigned v=0;v<4;v++){
    float ph=p->voice_phase[v];
    float lfo=p->voice_lfo[v];
    float motion=.003f*sinf(lfo);
@@ -103,7 +103,7 @@ void gs_pad_render(gs_pad *p,int32_t *lr,uint32_t frames,uint32_t master_q12){
    if(lfo>=GS_PI2)lfo-=GS_PI2;
    p->voice_lfo[v]=lfo;
   }
-  left*=.50f;
+  }\n  left*=.50f;
   right*=.50f;
   /* Stereo wash: cross-fed, decaying diffusion taps. Tail continues after note-off. */
   float wet_l=p->wash_l[p->wash_pos_l];
