@@ -23,5 +23,26 @@ int main(void){
    }
   }
  }
- printf("PASS: 44.1k stereo pad; peak=%d, release=%f\n",peak,p.env);return 0;
+ /* Wash should create an audible tail after a note release, but panic must
+    still clear both channels and all delay state immediately. */
+ gs_pad_init(&p);gs_pad_environment(&p,5,0.75f);gs_pad_note(&p,220.0f,1);
+ for(unsigned b=0;b<500;b++)gs_pad_render(&p,buffer,256,4096);
+ gs_pad_note(&p,220.0f,0);
+ int64_t tail_energy=0;int64_t stereo_difference=0;
+ for(unsigned b=0;b<100;b++){
+  gs_pad_render(&p,buffer,256,4096);
+  for(unsigned i=0;i<256;i++){
+   int64_t l=buffer[2*i],r=buffer[2*i+1];
+   tail_energy+=(l*l+r*r)/1000000;
+   stereo_difference+=llabs(l-r);
+  }
+ }
+ if(tail_energy==0||stereo_difference==0){
+  fprintf(stderr,"FAIL wash tail or stereo difference\\n");return 5;
+ }
+ gs_pad_panic(&p);gs_pad_render(&p,buffer,256,4096);
+ for(unsigned i=0;i<512;i++)if(buffer[i]!=0){
+  fprintf(stderr,"FAIL wash panic\\n");return 6;
+ }
+ printf("PASS: 44.1k stereo pad; peak=%d, wash tail=%lld\\n",peak,(long long)tail_energy);return 0;
 }
