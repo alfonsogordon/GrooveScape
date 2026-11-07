@@ -139,6 +139,16 @@ app=app.replace('            app_say("TONESCAPE INT", t);', '''            app_s
                 if (*v < 0) *v = 0;
                 if (*v > 100) *v = 100;
                 int_text(*v, t);
+                if (gs_track == 0 && gs_page == 4 && gs_page_num == 0) {
+                    if (knob == 0) gs_root = *v % 12;
+                    if (knob == 1) gs_minor = *v % 2;
+                    if (knob == 2) gs_latch = *v >= 50;
+                    gs_last_chord = -1;
+                }
+                if (gs_track == 0 && gs_page == 5 && gs_page_num == 0 && knob == 0) {
+                    gs_env_index = (unsigned)(*v) % 16u;
+                    gs_pad_environment(&gs_voice, gs_env_index, (float)gs_intensity_percent / 100.0f);
+                }
                 app_say("PAGE VALUE", t);
             }''')
 # The last replacement redirects the former intensity branch into K1, so
