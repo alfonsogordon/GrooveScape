@@ -6,6 +6,7 @@ on:
       - 'firmware/audio/**'
       - 'scripts/integrate_pad.py'
       - 'tests/test_pad.c'
+      - 'tests/native_host.txt'
       - '.github/workflows/native-host.yml'
 jobs:
   pad-and-host:
@@ -24,6 +25,8 @@ jobs:
         run: python3 scripts/integrate_pad.py
       - name: Build host simulator
         run: .work/fm1-base/tools/build.py .work/fm1-base/groovescape --host
+      - name: Run FM1 host UI and audio smoke test
+        run: .work/fm1-base/groovescape/build/host/groovescape_host tests/native_host.txt .work/fm1-base/groovescape/build/host
       - name: Install Emscripten for browser build
         uses: mymindstorm/setup-emsdk@v14
         with:
