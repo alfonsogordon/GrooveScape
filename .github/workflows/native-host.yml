@@ -16,6 +16,8 @@ jobs:
         run: |
           cc -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer tests/test_pad.c firmware/audio/pad_dsp.c -lm -o /tmp/gs-pad-test
           /tmp/gs-pad-test
+      - name: Validate integration script syntax
+        run: python3 -m py_compile scripts/integrate_pad.py
       - name: Get fm1-base
         run: git clone --depth 1 --recurse-submodules https://github.com/charlesvestal/fm1-base.git .work/fm1-base
       - name: Create GrooveScape firmware from upstream template
