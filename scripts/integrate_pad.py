@@ -49,7 +49,7 @@ app=app.replace(old,'void app_init(void)\n{\n    gs_pad_init(&gs_voice);\n    gs
 # PRESET encoder steps the environment; no B_FX button exists upstream.
 old='        } else if (k == EN_PRESET) {\n            set.wave ^= 1u;\n            set_dirty = 1;\n            app_say("WAVE", WAVE_NAME[set.wave]);'
 assert app.count(old)==1
-app=app.replace(old,'        } else if (k == EN_PRESET) {\n            gs_env_index = (unsigned)(((int)gs_env_index + e % 16 + 16) % 16);\n            gs_pad_environment(&gs_voice, gs_env_index, 0.65f);\n            app_say("PAD", gs_env_names[gs_env_index]);\n        } else if (k == EN_ALGO) {\n            gs_intensity_percent += e * 5;\n            if (gs_intensity_percent < 0) gs_intensity_percent = 0;\n            if (gs_intensity_percent > 100) gs_intensity_percent = 100;\n            gs_pad_environment(&gs_voice, gs_env_index, (float)gs_intensity_percent / 100.0f);\n            int_text(gs_intensity_percent, t);\n            app_say("INTENSITY", t);')
+app=app.replace(old,'        } else if (k == EN_PRESET) {\n            gs_env_index = (unsigned)(((int)gs_env_index + e % 16 + 16) % 16);\n            gs_pad_environment(&gs_voice, gs_env_index, (float)gs_intensity_percent / 100.0f);\n            app_say("PAD", gs_env_names[gs_env_index]);\n        } else if (k == EN_ALGO) {\n            gs_intensity_percent += e * 5;\n            if (gs_intensity_percent < 0) gs_intensity_percent = 0;\n            if (gs_intensity_percent > 100) gs_intensity_percent = 100;\n            gs_pad_environment(&gs_voice, gs_env_index, (float)gs_intensity_percent / 100.0f);\n            int_text(gs_intensity_percent, t);\n            app_say("INTENSITY", t);')
 # Existing template wave setting is only 0..1; this integration keeps that
 # setting for persistence and uses a separate transient environment selection.
 # Avoid altering the stored wave's validation and existing PRESET behaviour.
@@ -67,7 +67,7 @@ app=app.replace('static void note_on(int32_t note, uint32_t vel)\n{', 'static vo
 # original panic block has been replaced; avoid broad substitutions.
 # Keep the native screen and audio environment synchronized at boot.
 # In particular, resetting the DSP must not leave a stale UI selection.
-app=app.replace('    gs_pad_init(&gs_voice);', '    gs_env_index = 0;\n    gs_pad_init(&gs_voice);\n    gs_pad_environment(&gs_voice, gs_env_index, 0.65f);')
+app=app.replace('    gs_pad_init(&gs_voice);', '    gs_env_index = 0;\n    gs_intensity_percent = 65;\n    gs_pad_init(&gs_voice);\n    gs_pad_environment(&gs_voice, gs_env_index, 0.65f);')
 # The template only supports BLE when configured; keep all Bluetooth paths
 # off in this unverified native prototype to avoid hardware crash regressions.
 assert app.count('static gs_pad gs_voice;') == 1
