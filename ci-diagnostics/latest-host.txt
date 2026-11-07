@@ -1,8 +1,8 @@
-Commit: 690f5f034ad946bbd50c0c12362a6894a12f7a3d
+Commit: b4469c56277384a9473a93967b7628764784a216
 Host stage status: success
-Run: 42418647128
+Run: 42418859361
 DSP test log (last 120 lines):
-DSP benchmark: 200 x 256 frames, CPU 168.22 ms, avg 0.841 ms/block, deadline 5.805 ms/block (host only)\nPASS: 44.1k stereo pad; peak=776948, wash tail=5093765363\nPASS: native bass, peak=1336798
+DSP benchmark: 200 x 256 frames, CPU 168.27 ms, avg 0.841 ms/block, deadline 5.805 ms/block (host only)\nPASS: 44.1k stereo pad; peak=776948, wash tail=5093765363\nPASS: native bass, peak=1336798
 Integration log (last 120 lines):
 Generated /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape. Build with: /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/tools/build.py /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape --host
 BLE disabled; prototype ID. DO NOT FLASH hardware.
