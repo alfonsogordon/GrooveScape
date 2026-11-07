@@ -48,7 +48,7 @@ assert app.count(old)==1
 app=app.replace(old,'void app_init(void)\n{\n    gs_pad_init(&gs_voice);\n    gs_bass_init(&gs_bass_voice);')
 old='        else if (k == B_OCTUP)\n            octave_step(1);'
 assert app.count(old)==1
-app=app.replace(old,old+'\n        else if (k == B_FX) {\n            set.wave = (set.wave + 1u) % 16u;\n            gs_pad_environment(&gs_voice, set.wave, 0.65f);\n            set_dirty = 1;\n            app_say("PAD", gs_env_names[gs_env_index]);\n        }')
+app=app.replace(old,old+'\n        else if (k == B_FX) {\n            gs_env_index = (gs_env_index + 1u) % 16u;\n            gs_pad_environment(&gs_voice, gs_env_index, 0.65f);\n            app_say("PAD", gs_env_names[gs_env_index]);\n        }')
 # Existing template wave setting is only 0..1; this integration keeps that
 # setting for persistence and uses a separate transient environment selection.
 # Avoid altering the stored wave's validation and existing PRESET behaviour.
@@ -75,7 +75,8 @@ assert app.count('void app_render(') == 1
 # The pad environment starts from the default profile until FX is pressed.
 # Preserve the template's original settings schema for this host-only prototype.
 # Catch template drift before passing generated C to the compiler.
-assert app.count('gs_pad_render(&gs_voice, lr, n, master_q12);') == 1\nassert app.count('gs_bass_mix(&gs_bass_voice, lr, n, master_q12);') == 1
+assert app.count('gs_pad_render(&gs_voice, lr, n, master_q12);') == 1
+assert app.count('gs_bass_mix(&gs_bass_voice, lr, n, master_q12);') == 1
 assert app.count('gs_pad_panic(&gs_voice);') == 1
 assert app.count('gs_pad_init(&gs_voice);') == 1
 assert 'voice_level' not in app and 'voice_phase' not in app and 'gain_now' not in app
