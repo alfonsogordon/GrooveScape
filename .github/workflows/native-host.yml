@@ -68,3 +68,4 @@ jobs:
         with:
           name: groovescape-fm1-browser
           path: .work/fm1-base/groovescape/build/emu/
+          if-no-files-found: error
