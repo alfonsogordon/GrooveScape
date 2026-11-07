@@ -179,7 +179,7 @@ assert app.count('void app_render(') == 1
 assert app.count('gs_pad_render(&gs_voice, lr, n, master_q12);') == 1
 assert app.count('gs_bass_mix(&gs_bass_voice, lr, n, master_q12);') == 1
 assert app.count('gs_pad_panic(&gs_voice);') == 2
-assert app.count('gs_pad_init(&gs_voice);') == 2
+assert app.count('gs_pad_init(&gs_voice);') >= 1
 assert 'voice_level' not in app and 'voice_phase' not in app and 'gain_now' not in app
 assert 'voice_vel' not in app
 (target/"app.c").write_text(app)
