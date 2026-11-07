@@ -28,7 +28,7 @@ app=app.replace(anchor,anchor+'\n#include "pad_dsp.h"\nstatic gs_pad gs_voice;\n
 app=app.replace('static gs_pad gs_voice;', 'static gs_pad gs_voice;\nstatic unsigned gs_env_index;\nstatic int gs_intensity_percent = 65;\nstatic const char *const gs_env_names[16] = {\n    "DRIFT", "BLOOM", "EMBER", "GLASS CHOIR", "DEEP FOREST", "CATHEDRAL",\n    "OCEAN", "RIFT", "MIST", "MACHINE AIR", "TAPE GHOST", "HOLLOW EARTH",\n    "NEON WEATHER", "ICE BLOOM", "AURORA BODY", "NOIR VOID"\n};')
 old='    voice_vel = (float)vel / 127.0f;\n    voice_note = note;'
 assert app.count(old)==1
-app=app.replace(old,'    voice_note = note;\n    if (note < 48) {\n        gs_pad_note(&gs_voice, 0.0f, 0);\n        gs_bass_note(&gs_bass_voice, 440.0f * fm_exp2f((float)(note - 69) / 12.0f), 1);\n    } else {\n        gs_bass_note(&gs_bass_voice, 0.0f, 0);\n        gs_pad_note(&gs_voice, 440.0f * fm_exp2f((float)(note - 69) / 12.0f), 1);\n    }')
+app=app.replace(old,'    voice_note = note;\n    if (note < 48) {\n        gs_bass_note(&gs_bass_voice, 440.0f * fm_exp2f((float)(note - 69) / 12.0f), 1);\n    } else {\n        gs_pad_note(&gs_voice, 440.0f * fm_exp2f((float)(note - 69) / 12.0f), 1);\n    }')
 old='    if (voice_note == note)\n        voice_note = -1;'
 assert app.count(old)==1
 app=app.replace(old,'    if (voice_note == note) {\n        voice_note = -1;\n        gs_pad_note(&gs_voice, 0.0f, 0);\n        gs_bass_note(&gs_bass_voice, 0.0f, 0);\n    }')
