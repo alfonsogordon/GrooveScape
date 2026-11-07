@@ -121,3 +121,20 @@ void gs_pad_render(gs_pad *p,int32_t *lr,uint32_t frames,uint32_t master_q12){
   lr[2u*n+1u]=(int32_t)out_r;
  }
 }
+
+/* Render an overlapping retiring layer without overwriting the newer layer. */
+void gs_pad_mix(gs_pad *p,int32_t *lr,uint32_t frames,uint32_t master_q12){
+ int32_t tmp[128];
+ for(uint32_t off=0;off<frames;){
+  uint32_t count=frames-off;
+  if(count>64u)count=64u;
+  gs_pad_render(p,tmp,count,master_q12);
+  for(uint32_t i=0;i<count*2u;i++){
+   int64_t v=(int64_t)lr[off*2u+i]+tmp[i];
+   if(v>8388607)v=8388607;
+   if(v< -8388607)v= -8388607;
+   lr[off*2u+i]=(int32_t)v;
+  }
+  off+=count;
+ }
+}
