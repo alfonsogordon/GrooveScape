@@ -32,7 +32,9 @@ jobs:
       - name: Get fm1-base
         run: git clone --depth 1 --recurse-submodules https://github.com/charlesvestal/fm1-base.git .work/fm1-base
       - name: Create GrooveScape firmware from upstream template
-        run: python3 scripts/integrate_pad.py
+        run: |
+          set -o pipefail
+          python3 scripts/integrate_pad.py 2>&1 | tee /tmp/groovescape-integration.log
       - name: Check generated native integration before build
         run: |
           python3 - <<'PY'
@@ -57,7 +59,7 @@ jobs:
         if: always()
         run: |
           mkdir -p .work/diagnostics
-          cp /tmp/groovescape-host-build.log /tmp/groovescape-host-test.log .work/diagnostics/ 2>/dev/null || true
+          cp /tmp/groovescape-integration.log /tmp/groovescape-host-build.log /tmp/groovescape-host-test.log .work/diagnostics/ 2>/dev/null || true
       - name: Upload host diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -72,6 +74,8 @@ jobs:
           {
             echo "Commit: $GITHUB_SHA"
             echo "Run: $GITHUB_RUN_ID"
+            echo "Integration log (last 120 lines):"
+            tail -n 120 /tmp/groovescape-integration.log 2>/dev/null || true
             echo "Host build log (last 120 lines):"
             tail -n 120 /tmp/groovescape-host-build.log 2>/dev/null || true
             echo "Host test log (last 120 lines):"
