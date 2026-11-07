@@ -6,6 +6,7 @@ on:
       - 'firmware/audio/**'
       - 'scripts/integrate_pad.py'
       - 'tests/test_pad.c'
+      - 'tests/render_pad_wav.c'
       - 'tests/test_bass.c'
       - 'tests/native_host.txt'
       - '.github/workflows/native-host.yml'
@@ -28,6 +29,18 @@ jobs:
             cc -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=undefined -fno-omit-frame-pointer tests/test_bass.c firmware/audio/bass_dsp.c -lm -o /tmp/gs-bass-test
             /tmp/gs-bass-test
           } 2>&1 | tee /tmp/groovescape-dsp-test.log
+      - name: Render offline ToneScape listening preview
+        run: |
+          mkdir -p .work/preview
+          cc -std=c11 -O2 -Wall -Wextra -Werror tests/render_pad_wav.c firmware/audio/pad_dsp.c -lm -o /tmp/gs-render-preview
+          /tmp/gs-render-preview .work/preview/tonescape-pad-preview.wav
+          test -s .work/preview/tonescape-pad-preview.wav
+      - name: Upload offline listening preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: groovescape-tonescape-audio-preview
+          path: .work/preview/tonescape-pad-preview.wav
+          if-no-files-found: error
       - name: Validate integration script syntax
         run: python3 -m py_compile scripts/integrate_pad.py
       - name: Install FM1 build Python dependencies
