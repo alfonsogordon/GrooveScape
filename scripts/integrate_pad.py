@@ -87,9 +87,7 @@ app=app.replace('        } else if (k == EN_PRESET) {', '''        } else if (k 
 app=app.replace('        } else if (k == EN_ALGO) {', '''        } else if (k == EN_ALGO) {
             gs_track = (unsigned)(((int)gs_track + e % 4 + 4) % 4);
             app_say("TRACK", gs_track == 0 ? "TONESCAPE" : gs_track == 1 ? "BASS" : gs_track == 2 ? "DRUMS PLANNED" : "LEAD PLANNED");
-        } else if (k >= EN_K1 && k <= EN_K4) {
-            unsigned knob = k - EN_K1;
-            if (gs_page == 0 && gs_track == 0 && knob == 0) {''')
+        } else if (k == EN_K1) {''')
 # The last replacement redirects the former intensity branch into K1, so
 # ALGORITHM remains dedicated to track selection like SLOOP.
 old='    for (i = 0; i < NB; i++)\n        cell(4 + (int32_t)(i % 4u) * 58, (int32_t)(i / 4u) * 21, 56, BTN_NAME[i], (ui.btn >> i) & 1u);'
