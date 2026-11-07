@@ -32,7 +32,7 @@
       "strip": 7
     },
     {
-      "id": "fx",
+      "id": "master",
       "strip": 8
     }
   ],
@@ -69,8 +69,9 @@
         "shimmer",
         "stereoWidth"
       ],
-      "alternateMode": "master-effects",
-      "notes": "Proposed UI mapping; MIDI CC16-23 from Hortator reference, actual firmware not yet implemented"
+      "alternateMode": "master-effects-via-strip-8",
+      "notes": "Proposed UI mapping; MIDI CC16-23 from Hortator reference, actual firmware not yet implemented",
+      "masterSelection": "Select strip 8 to edit master effects with all eight encoders"
     },
     "buttons": {
       "message": "note-on",
