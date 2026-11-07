@@ -75,7 +75,7 @@ void gs_pad_render(gs_pad *p,int32_t *lr,uint32_t frames,uint32_t master_q12){
  const float *s=spec[p->environment%16u];
  const float master=gs_clampf((float)master_q12/4096.0f,0.0f,1.0f);
  for(uint32_t n=0;n<frames;n++){
-  float rate=p->gate?1.0f/(GS_SR*2.5f):1.0f/(GS_SR*5.0f);
+  float rate=p->gate?1.0f/(GS_SR*4.0f):1.0f/(GS_SR*8.0f);
   p->env+=((p->gate?1.0f:0.0f)-p->env)*rate;
   /* Independent slowly detuned ToneScape-style voices, spread in stereo.
    * Keep modulation per voice instead of multiplying a single mono oscillator. */
