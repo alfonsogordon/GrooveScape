@@ -97,7 +97,7 @@ app=app.replace(old,'''    voice_note = note;
 
 old='    if (voice_note == note)\n        voice_note = -1;'
 assert app.count(old)==1
-app=app.replace(old,'    if (voice_note == note) voice_note = -1;\n    if (gs_track == 0 && !gs_chord_select) gs_pad_note(&gs_melody, 0.0f, 0);\n    if (gs_bass_key == note && (!gs_chord_select || !gs_latch)) { gs_bass_note(&gs_bass_voice, 0.0f, 0); gs_bass_key = -1; }')
+app=app.replace(old,'    if (voice_note == note) voice_note = -1;\n    if (gs_track == 0 && ((note % 12)!=1 && (note % 12)!=3 && (note % 12)!=6 && (note % 12)!=8 && (note % 12)!=10)) gs_pad_note(&gs_melody, 0.0f, 0);\n    if (gs_bass_key == note && (!gs_latch || ((note % 12)!=1 && (note % 12)!=3 && (note % 12)!=6 && (note % 12)!=8 && (note % 12)!=10))) { gs_bass_note(&gs_bass_voice, 0.0f, 0); gs_bass_key = -1; }')
 start=app.index('void app_render(int32_t *lr, uint32_t n, uint32_t master_q12)')
 end=app.index('\nvoid app_panic(void)',start)
 app=app[:start]+'''void app_render(int32_t *lr, uint32_t n, uint32_t master_q12)
