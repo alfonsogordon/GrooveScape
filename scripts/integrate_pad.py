@@ -46,8 +46,6 @@ app=app.replace(old,'    voice_note = -1;\n    voice_level = 0.0f;\n    gs_pad_p
 old='void app_init(void)\n{'
 assert app.count(old)==1
 app=app.replace(old,'void app_init(void)\n{\n    gs_pad_init(&gs_voice);\n    gs_bass_init(&gs_bass_voice);')
-old='        else if (k == B_OCTUP)\n            octave_step(1);'
-assert app.count(old)==1
 # PRESET encoder steps the environment; no B_FX button exists upstream.
 old='        } else if (k == EN_PRESET) {\n            set.wave ^= 1u;\n            set_dirty = 1;\n            app_say("WAVE", WAVE_NAME[set.wave]);'
 assert app.count(old)==1
