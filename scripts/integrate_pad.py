@@ -84,7 +84,7 @@ app=app.replace(old,'''    voice_note = note;
             gs_pad_panic(&gs_melody);
             gs_pad_environment(&gs_melody, gs_env_index, (float)gs_intensity_percent/100.0f);
         }
-        gs_pad_note(&gs_melody, 440.0f*fm_exp2f((float)(locked-69)/12.0f), 1);\n    } else if (gs_track == 3) {\n        gs_lead_note(&gs_lead_voice, 440.0f*fm_exp2f((float)(note-69)/12.0f), 1);\n    } else if (gs_track == 1) {
+        gs_pad_note(&gs_melody, 440.0f*fm_exp2f((float)(locked-69)/12.0f), 1);\n    } else if (gs_track == 2) {\n        gs_drums_hit(&gs_drum_voice, (unsigned)(note >= 36 ? note - 36 : note), (float)vel / 127.0f);\n    } else if (gs_track == 3) {\n        gs_lead_note(&gs_lead_voice, 440.0f*fm_exp2f((float)(note-69)/12.0f), 1);\n    } else if (gs_track == 1) {
         /* Bass uses the same scale/chord keyboard, with monophonic root voicing. */
         static const int major_scale[7] = {0,2,4,5,7,9,11};
         static const int minor_scale[7] = {0,2,3,5,7,8,10};
