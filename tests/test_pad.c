@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <time.h>
 int main(void){
  static gs_pad p;gs_pad_init(&p);gs_pad_environment(&p,5,0.75f);gs_pad_note(&p,110.0f,1);
  int32_t buffer[512];int64_t energy=0;int32_t peak=0;
@@ -60,5 +61,13 @@ int main(void){
    gs_pad_note(&p,0.0f,0);
   }
  }
+ /* Informational real-time budget benchmark, measured without sanitizer.
+    A block of 256 frames at 44.1kHz has 5.805 ms to finish. */
+ gs_pad_init(&p);gs_pad_environment(&p,7,1.0f);gs_pad_note(&p,220.0f,1);
+ clock_t bench_start=clock();
+ for(unsigned b=0;b<200;b++)gs_pad_render(&p,buffer,256,4096);
+ clock_t bench_end=clock();
+ double elapsed_ms=1000.0*(double)(bench_end-bench_start)/CLOCKS_PER_SEC;
+ printf("DSP benchmark: 200 x 256 frames, CPU %.2f ms, avg %.3f ms/block, deadline 5.805 ms/block (host only)\\n",elapsed_ms,elapsed_ms/200.0);
  printf("PASS: 44.1k stereo pad; peak=%d, wash tail=%lld\\n",peak,(long long)tail_energy);return 0;
 }
