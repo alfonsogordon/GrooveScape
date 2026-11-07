@@ -77,17 +77,31 @@ void gs_pad_render(gs_pad *p,int32_t *lr,uint32_t frames,uint32_t master_q12){
  for(uint32_t n=0;n<frames;n++){
   float rate=p->gate?1.0f/(GS_SR*2.5f):1.0f/(GS_SR*5.0f);
   p->env+=((p->gate?1.0f:0.0f)-p->env)*rate;
-  p->phase+=GS_PI2*p->hz/GS_SR;
-  /* ToneScape V2 MorphPadEngine wraps each voice phase every cycle.
-   * Keeping 100000 cycles here destroys float precision and makes the
-   * texture oscillator sound unstable and inharmonic. */
-  if(p->phase>=GS_PI2)p->phase-=GS_PI2;
-  p->drift+=GS_PI2*.11f/GS_SR;
-  if(p->drift>=GS_PI2)p->drift-=GS_PI2;
-  float phase_l=p->phase*(1.0f+s[5]*.0015f*sinf(p->phase*.0007f+.37f));
-  float phase_r=p->phase*(1.0f+s[5]*.0015f*sinf(p->phase*.0007f+1.11f));
-  float left=gs_texture(phase_l,s,p->intensity,.37f,p->harmonic_weight,p->odd_l);
-  float right=gs_texture(phase_r,s,p->intensity,1.11f,p->harmonic_weight,p->odd_r);
+  /* Independent slowly detuned ToneScape-style voices, spread in stereo.
+   * Keep modulation per voice instead of multiplying a single mono oscillator. */
+  static const float ratios[4]={0.997f,1.0f,1.003f,0.5f};
+  static const float pans[4]={-0.72f,0.64f,-0.27f,0.32f};
+  float left=0.0f,right=0.0f;
+  for(unsigned v=0;v<4;v++){
+   float ph=p->voice_phase[v];
+   float lfo=p->voice_lfo[v];
+   float motion=.003f*sinf(lfo);
+   float moved=ph*(1.0f+motion+s[5]*.0015f*sinf(ph*.0007f+.37f+v));
+   float seed=.37f+(float)v*.71f;
+   float sample=gs_texture(moved,s,p->intensity,seed,p->harmonic_weight,p->odd_l);
+   sample+=.040f*s[1]*sinf(ph*5.0f+seed)+.026f*s[0]*sinf(ph*.5f);
+   float pan=pans[v];
+   left+=sample*sqrtf(.5f*(1.0f-pan));
+   right+=sample*sqrtf(.5f*(1.0f+pan));
+   ph+=GS_PI2*p->hz*ratios[v]/GS_SR;
+   if(ph>=GS_PI2)ph-=GS_PI2;
+   p->voice_phase[v]=ph;
+   lfo+=GS_PI2*(.06f+.019f*(float)v)/GS_SR;
+   if(lfo>=GS_PI2)lfo-=GS_PI2;
+   p->voice_lfo[v]=lfo;
+  }
+  left*=.50f;
+  right*=.50f;
   /* Stereo wash: cross-fed, decaying diffusion taps. Tail continues after note-off. */
   float wet_l=p->wash_l[p->wash_pos_l];
   float wet_r=p->wash_r[p->wash_pos_r];
