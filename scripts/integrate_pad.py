@@ -75,13 +75,29 @@ app=app.replace(old,'''    voice_note = note;
         }
         int locked = note + scale[degree] - relative;
         gs_pad_note(&gs_melody, 440.0f*fm_exp2f((float)(locked-69)/12.0f), 1);\n    } else if (gs_track == 1) {
+        /* Bass uses the same scale/chord keyboard, with monophonic root voicing. */
+        static const int major_scale[7] = {0,2,4,5,7,9,11};
+        static const int minor_scale[7] = {0,2,3,5,7,8,10};
+        const int *scale = gs_minor ? minor_scale : major_scale;
+        int relative = (note - gs_root) % 12;
+        if (relative < 0) relative += 12;
+        int degree = 0, nearest = 100;
+        for (int i=0;i<7;i++) {
+            int delta = relative > scale[i] ? relative-scale[i] : scale[i]-relative;
+            if (delta < nearest) { nearest=delta; degree=i; }
+        }
+        int locked = note + scale[degree] - relative;
+        if (gs_chord_select) {
+            locked -= 12;
+            gs_last_chord = locked;
+        }
         gs_bass_key = note;
-        gs_bass_note(&gs_bass_voice, 440.0f*fm_exp2f((float)(note-69)/12.0f), 1);
+        gs_bass_note(&gs_bass_voice, 440.0f*fm_exp2f((float)(locked-69)/12.0f), 1);
     }''')
 
 old='    if (voice_note == note)\n        voice_note = -1;'
 assert app.count(old)==1
-app=app.replace(old,'    if (voice_note == note) voice_note = -1;\n    if (gs_track == 0 && !gs_chord_select) gs_pad_note(&gs_melody, 0.0f, 0);\n    if (gs_bass_key == note) { gs_bass_note(&gs_bass_voice, 0.0f, 0); gs_bass_key = -1; }')
+app=app.replace(old,'    if (voice_note == note) voice_note = -1;\n    if (gs_track == 0 && !gs_chord_select) gs_pad_note(&gs_melody, 0.0f, 0);\n    if (gs_bass_key == note && (!gs_chord_select || !gs_latch)) { gs_bass_note(&gs_bass_voice, 0.0f, 0); gs_bass_key = -1; }')
 start=app.index('void app_render(int32_t *lr, uint32_t n, uint32_t master_q12)')
 end=app.index('\nvoid app_panic(void)',start)
 app=app[:start]+'''void app_render(int32_t *lr, uint32_t n, uint32_t master_q12)
