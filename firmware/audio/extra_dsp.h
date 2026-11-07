@@ -7,5 +7,6 @@ void gs_lead_init(gs_lead *p);
 void gs_lead_note(gs_lead *p,float hz,int gate);
 void gs_lead_mix(gs_lead *p,int32_t *lr,uint32_t n,uint32_t gain);
 void gs_drums_init(gs_drums *d);
+void gs_drums_hit(gs_drums *d,unsigned instrument,float velocity);
 void gs_drums_mix(gs_drums *d,int32_t *lr,uint32_t n,uint32_t gain,int bpm);
 #endif
