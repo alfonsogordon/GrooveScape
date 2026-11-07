@@ -1,13 +1,13 @@
-Commit: 890a5430b54b571ec6b22d939fb344e076cc962e
+Commit: 878a4a18deb20a28b679e8db1289cd5d0ca4d8ef
 Host stage status: failure
-Run: 42422342799
+Run: 42422383533
 DSP test log (last 120 lines):
-DSP benchmark: 200 x 256 frames, CPU 219.81 ms, avg 1.099 ms/block, deadline 5.805 ms/block (host only)\nPASS: 44.1k stereo pad; peak=545890, wash tail=1824364774\nPASS: native bass, peak=1705858
+DSP benchmark: 200 x 256 frames, CPU 232.47 ms, avg 1.162 ms/block, deadline 5.805 ms/block (host only)\nPASS: 44.1k stereo pad; peak=545890, wash tail=1824364774\nPASS: native bass, peak=1705858
 Integration log (last 120 lines):
 Traceback (most recent call last):
-  File "/home/runner/work/GrooveScape/GrooveScape/scripts/integrate_pad.py", line 174, in <module>
-    assert app.count('gs_pad_environment(&gs_voice,') == 3
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/GrooveScape/GrooveScape/scripts/integrate_pad.py", line 181, in <module>
+    assert app.count('gs_pad_panic(&gs_voice);') == 1
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 AssertionError
 Host build log (last 120 lines):
 Host test log (last 120 lines):
