@@ -64,7 +64,9 @@ jobs:
           app = Path('.work/fm1-base/groovescape/app.c').read_text()
           assert app.count('gs_pad_render(&gs_voice, lr, n, pad_gain);') == 1
           assert app.count('gs_pad_environment(&gs_voice,') >= 2
-          assert app.count('gs_bass_mix(&gs_bass_voice, lr, n, bass_gain);') == 1\n          assert app.count('gs_lead_mix(&gs_lead_voice, lr, n, lead_gain);') == 1\n          assert app.count('gs_drums_mix(&gs_drum_voice, lr, n, drum_gain, gs_tempo);') == 1
+          assert app.count('gs_bass_mix(&gs_bass_voice, lr, n, bass_gain);') == 1
+          assert app.count('gs_lead_mix(&gs_lead_voice, lr, n, lead_gain);') == 1
+          assert app.count('gs_drums_mix(&gs_drum_voice, lr, n, drum_gain, gs_tempo);') == 1
           assert 'gs_env_names[gs_env_index]' in app
           assert 'voice_level' not in app
           print('Native app integration and environment controls verified')
