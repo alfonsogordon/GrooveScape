@@ -24,6 +24,12 @@ void gs_pad_render(gs_pad *p,int32_t *lr,uint32_t frames,uint32_t master_q12){
  const float *s=spec[p->environment%16u];
  const float master=clampf((float)master_q12/4096.0f,0.0f,1.0f);
  const unsigned partials=4u+(unsigned)(p->intensity*8.0f);
+ float weights[12],total=0.0f;
+ for(unsigned j=0;j<partials;j++){
+  const float harmonic=(float)(j+1u);
+  weights[j]=1.0f/powf(harmonic,0.85f+s[1]*0.5f);
+  total+=weights[j];
+ }
  for(uint32_t n=0;n<frames;n++){
   const float target=p->gate?1.0f:0.0f;
   const float env_rate=p->gate?1.0f/(GS_SR*2.5f):1.0f/(GS_SR*5.0f);
@@ -33,18 +39,17 @@ void gs_pad_render(gs_pad *p,int32_t *lr,uint32_t frames,uint32_t master_q12){
   p->drift+=GS_PI2*0.11f/GS_SR;
   if(p->drift>=GS_PI2)p->drift-=GS_PI2;
   const float wobble=0.003f*sinf(p->drift)*(0.4f+p->intensity);
-  float l=0.0f,r=0.0f,weight_total=0.0f;
+  float l=0.0f,r=0.0f;
   for(unsigned j=0;j<partials;j++){
    const float harmonic=(float)(j+1u);
    const float stretch=1.0f+s[2]*0.006f*(float)((int)(j%3u)-1);
-   const float weight=1.0f/powf(harmonic,0.85f+s[1]*0.5f);
+   const float weight=weights[j];
    const float angle=p->phase*harmonic*stretch*(1.0f+wobble*(1.0f+j*0.06f));
    const float spread=0.2f+s[3]*0.7f;
    l+=sinf(angle+j*0.21f)*weight*(1.0f+spread*0.15f*sinf(p->drift+j));
    r+=sinf(angle+j*0.21f+j*0.06f)*weight*(1.0f-spread*0.15f*sinf(p->drift+j));
-   weight_total+=weight;
   }
-  const float amp=p->env*s[0]*0.28f/(weight_total>0.0f?weight_total:1.0f);
+  const float amp=p->env*s[0]*0.28f/(total>0.0f?total:1.0f);
   const float scale=GS_OUTPUT*master;
   lr[2u*n]=(int32_t)(tanhf(l*amp)*scale);
   lr[2u*n+1u]=(int32_t)(tanhf(r*amp)*scale);
