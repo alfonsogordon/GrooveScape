@@ -117,7 +117,18 @@ old='void app_init(void)\n{'
 assert app.count(old)==1
 app=app.replace(old,'void app_init(void)\n{\n    gs_pad_init(&gs_voice);\n    gs_pad_init(&gs_fading_voice);\n    gs_pad_init(&gs_melody);\n    for (int i=0;i<2;i++) { gs_pad_init(&gs_chord[i]); gs_pad_init(&gs_chord_fading[i]); }\n    gs_bass_init(&gs_bass_voice);\n    gs_lead_init(&gs_lead_voice); gs_drums_init(&gs_drum_voice);')
 # Physical keyboard: white notes, black chord triggers, last black latch.
-app=app.replace('            note_on(note, v);', '''            if (gs_track == 2) { gs_drum_voice.playing = !gs_drum_voice.playing; app_say("DRUMS", gs_drum_voice.playing ? "PLAY" : "STOP"); } else {
+app=app.replace('            note_on(note, v);', '''            if (gs_track == 2) {
+                if (k < 16) {
+                    uint16_t bit = (uint16_t)(1u << k);
+                    if (gs_page == 7 && gs_page_num == 1) gs_drum_voice.snare_steps[gs_drum_voice.pattern] ^= bit;
+                    else if (gs_page == 7 && gs_page_num == 2) gs_drum_voice.hat_steps[gs_drum_voice.pattern] ^= bit;
+                    else gs_drum_voice.kick_steps[gs_drum_voice.pattern] ^= bit;
+                    app_say("DRUM STEP", "TOGGLE");
+                } else if (k == 16) { gs_drum_voice.playing = !gs_drum_voice.playing; app_say("DRUMS", gs_drum_voice.playing ? "PLAY" : "STOP"); }
+                else if (k == 17) { gs_drum_voice.pattern ^= 1u; app_say("PATTERN", gs_drum_voice.pattern ? "B" : "A"); }
+                else if (k == 18) { gs_drum_voice.fill ^= 1u; app_say("FILL", gs_drum_voice.fill ? "ON" : "OFF"); }
+                else if (k == 19) { gs_drum_voice.mute ^= 1u; app_say("DRUM MUTE", gs_drum_voice.mute ? "ON" : "OFF"); }
+            } else {
                 gs_chord_select = ((note % 12)==1 || (note % 12)==3 || (note % 12)==6 || (note % 12)==8 || (note % 12)==10);
                 if (k == 25) { gs_latch = !gs_latch; app_say("CHORD LATCH", gs_latch ? "ON" : "OFF"); }
                 else note_on(note, v);
