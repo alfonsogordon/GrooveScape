@@ -24,7 +24,9 @@ void gs_bass_mix(gs_bass *b,int32_t *lr,uint32_t frames,uint32_t master_q12){
   float sub=sinf(GS_PI2*b->phase);
   float cutoff=clampf(0.025f+0.18f*b->env,0.0f,0.45f);
   b->lowpass+=cutoff*(saw-b->lowpass);
-  float sample=(0.46f*sub+0.54f*b->lowpass)*b->env*master*2500000.0f;
+  /* Keep the sub dominant and the saw harmonics restrained, leaving
+     spectral room for ToneScape's evolving midrange textures. */
+  float sample=(0.72f*sub+0.28f*b->lowpass)*b->env*master*2900000.0f;
   for(unsigned ch=0;ch<2;ch++){
    int64_t mixed=(int64_t)lr[2u*i+ch]+(int32_t)sample;
    if(mixed>8388607)mixed=8388607;
