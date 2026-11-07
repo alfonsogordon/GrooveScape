@@ -1,13 +1,10 @@
-Commit: 878a4a18deb20a28b679e8db1289cd5d0ca4d8ef
+Commit: 233112bacbfeb0c366499cf723c3fe67a29e3d80
 Host stage status: failure
-Run: 42422383533
+Run: 42422423589
 DSP test log (last 120 lines):
-DSP benchmark: 200 x 256 frames, CPU 232.47 ms, avg 1.162 ms/block, deadline 5.805 ms/block (host only)\nPASS: 44.1k stereo pad; peak=545890, wash tail=1824364774\nPASS: native bass, peak=1705858
+DSP benchmark: 200 x 256 frames, CPU 218.10 ms, avg 1.090 ms/block, deadline 5.805 ms/block (host only)\nPASS: 44.1k stereo pad; peak=545890, wash tail=1824364774\nPASS: native bass, peak=1705858
 Integration log (last 120 lines):
-Traceback (most recent call last):
-  File "/home/runner/work/GrooveScape/GrooveScape/scripts/integrate_pad.py", line 181, in <module>
-    assert app.count('gs_pad_panic(&gs_voice);') == 1
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError
+Generated /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape. Build with: /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/tools/build.py /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape --host
+BLE disabled; prototype ID. DO NOT FLASH hardware.
 Host build log (last 120 lines):
 Host test log (last 120 lines):
