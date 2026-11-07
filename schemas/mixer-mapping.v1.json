@@ -57,7 +57,20 @@
         22,
         23
       ],
-      "encoding": "relative-sign-magnitude"
+      "encoding": "relative-sign-magnitude",
+      "defaultMode": "selected-track-effects",
+      "effects": [
+        "reverbMix",
+        "reverbSize",
+        "delayMix",
+        "delayFeedback",
+        "filterCutoff",
+        "filterResonance",
+        "shimmer",
+        "stereoWidth"
+      ],
+      "alternateMode": "master-effects",
+      "notes": "Proposed UI mapping; MIDI CC16-23 from Hortator reference, actual firmware not yet implemented"
     },
     "buttons": {
       "message": "note-on",
