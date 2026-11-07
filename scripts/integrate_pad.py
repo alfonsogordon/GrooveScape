@@ -24,6 +24,8 @@ app=(target/"app.c").read_text()
 anchor='#include "fastmath.h"'
 assert app.count(anchor)==1
 app=app.replace(anchor,anchor+'\n#include "pad_dsp.h"\nstatic gs_pad gs_voice;')
+# Expose the active pad environment on the real FM1 screen.
+app=app.replace('static gs_pad gs_voice;', 'static gs_pad gs_voice;\nstatic unsigned gs_env_index;\nstatic const char *const gs_env_names[16] = {\n    "DRIFT", "BLOOM", "EMBER", "GLASS CHOIR", "DEEP FOREST", "CATHEDRAL",\n    "OCEAN", "RIFT", "MIST", "MACHINE AIR", "TAPE GHOST", "HOLLOW EARTH",\n    "NEON WEATHER", "ICE BLOOM", "AURORA BODY", "NOIR VOID"\n};')
 old='    voice_vel = (float)vel / 127.0f;\n    voice_note = note;'
 assert app.count(old)==1
 app=app.replace(old,'    voice_note = note;\n    gs_pad_note(&gs_voice, 440.0f * fm_exp2f((float)(note - 69) / 12.0f), 1);')
@@ -46,11 +48,15 @@ assert app.count(old)==1
 app=app.replace(old,'void app_init(void)\n{\n    gs_pad_init(&gs_voice);')
 old='        else if (k == B_OCTUP)\n            octave_step(1);'
 assert app.count(old)==1
-app=app.replace(old,old+'\n        else if (k == B_FX) {\n            set.wave = (set.wave + 1u) % 16u;\n            gs_pad_environment(&gs_voice, set.wave, 0.65f);\n            set_dirty = 1;\n            app_say("PAD", "ENVIRONMENT");\n        }')
+app=app.replace(old,old+'\n        else if (k == B_FX) {\n            set.wave = (set.wave + 1u) % 16u;\n            gs_pad_environment(&gs_voice, set.wave, 0.65f);\n            set_dirty = 1;\n            app_say("PAD", gs_env_names[gs_env_index]);\n        }')
 # Existing template wave setting is only 0..1; this integration keeps that
 # setting for persistence and uses a separate transient environment selection.
 # Avoid altering the stored wave's validation and existing PRESET behaviour.
-app=app.replace('            set.wave = (set.wave + 1u) % 16u;\n            gs_pad_environment(&gs_voice, set.wave, 0.65f);\n            set_dirty = 1;', '            static unsigned env_index;\n            env_index = (env_index + 1u) % 16u;\n            gs_pad_environment(&gs_voice, env_index, 0.65f);')
+app=app.replace('            set.wave = (set.wave + 1u) % 16u;\n            gs_pad_environment(&gs_voice, set.wave, 0.65f);\n            set_dirty = 1;', '            gs_env_index = (gs_env_index + 1u) % 16u;\n            gs_pad_environment(&gs_voice, gs_env_index, 0.65f);')
+# Display the actual environment, rather than the now-unused sine/triangle setting.
+old='cv_text(112, 36, &FONT_XS, WAVE_NAME[set.wave], C_HI);'
+assert app.count(old)==1
+app=app.replace(old,'cv_text(112, 36, &FONT_XS, gs_env_names[gs_env_index], C_HI);')
 # The template oscillator variables are unused after replacing its renderer.
 app=app.replace('static float voice_phase, voice_level, gain_now;   /* gain_now glides to MASTER: no step at a block\'s edge */', '')
 app=app.replace('static volatile float voice_vel = 1.0f;', '')
