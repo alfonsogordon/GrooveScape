@@ -4,7 +4,7 @@
 #include <string.h>
 #define GS_SR 44100.0f
 #define GS_PI2 6.283185307179586f
-#define GS_OUTPUT 6500000.0f
+#define GS_OUTPUT 400000000.0f /* 24-bit-in-int32 host bus: previous 6.5M was nearly inaudible */
 static const float spec[16][4] = {
  {0.72f,0.25f,0.08f,0.55f},{0.82f,0.33f,0.06f,0.64f},
  {0.62f,0.45f,0.16f,0.42f},{0.54f,0.68f,0.22f,0.78f},
