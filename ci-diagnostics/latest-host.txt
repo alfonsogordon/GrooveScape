@@ -1,5 +1,8 @@
-Commit: bfd267510bd35b2c7eb8dd4114f649e8f4379b6c
-Run: 42416947395
+Commit: 4b24da98c39da8634b8dd8de9b7ca39798f14048
+Host stage status: failure
+Run: 42417378736
+DSP test log (last 120 lines):
+DSP benchmark: 200 x 256 frames, CPU 167.45 ms, avg 0.837 ms/block, deadline 5.805 ms/block (host only)\nPASS: 44.1k stereo pad; peak=518721, wash tail=2027842497\nPASS: native bass, peak=1336798
 Integration log (last 120 lines):
 Host build log (last 120 lines):
 Host test log (last 120 lines):
