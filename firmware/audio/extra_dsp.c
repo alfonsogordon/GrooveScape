@@ -9,7 +9,7 @@ void gs_lead_init(gs_lead *p){memset(p,0,sizeof *p);p->hz=440;p->brightness=.45f
 void gs_lead_note(gs_lead *p,float hz,int gate){if(gate&&hz>0)p->hz=cl(hz,70,2400);p->gate=(uint8_t)!!gate;}
 void gs_lead_mix(gs_lead *p,int32_t *lr,uint32_t n,uint32_t gain){
 float master=cl((float)gain/4096.f,0,1);
-for(uint32_t i=0;i<n;i++){p->env+=(p->gate?1.f:0.f-p->env)*.0001f; /* slow ghostly release */
+for(uint32_t i=0;i<n;i++){/* slow ghostly release */
 float target=p->gate?1.f:0.f;p->env+=(target-p->env)*(p->gate?.0015f:.00012f);
 p->phase+=p->hz/SR;if(p->phase>=1)p->phase-=1;
 p->mod+=.23f/SR;if(p->mod>=1)p->mod-=1;
@@ -24,8 +24,8 @@ for(uint32_t i=0;i<n;i++){
 if(d->playing){d->beat_pos+=(float)bpm/(60.f*SR)*4.f;
 if(d->beat_pos>=1.f){d->beat_pos-=1.f;d->step=(d->step+1u)&15u;
 if((d->step%8u)==0u)d->kick=1.f;
-if((d->step%8u)==4u)d->snare=.8f;
-if((d->step%4u)==2u)d->hat=.4f;
+if((d->step%8u)==4u && !d->pattern)d->snare=.8f;
+if((d->step%(d->pattern?8u:4u))==2u)d->hat=.4f;
 }}
 d->phase+= (48.f+95.f*d->kick*d->kick)/SR;if(d->phase>=1)d->phase-=1;
 d->rng^=d->rng<<13;d->rng^=d->rng>>17;d->rng^=d->rng<<5;
