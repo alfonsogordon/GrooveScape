@@ -54,35 +54,71 @@ app=app.replace(old,'        } else if (k == EN_PRESET) {\n            gs_env_in
 # setting for persistence and uses a separate transient environment selection.
 # Avoid altering the stored wave's validation and existing PRESET behaviour.
 
-# SLOOP-inspired TRACKS home page on the *actual* FM1 renderer, not a web-only mock.
-# HOME toggles TRACKS / the existing control view; SELECT picks the track.
-# Unimplemented tracks are visibly marked as planned, not represented as working.
-app=app.replace('static unsigned gs_env_index;', 'static unsigned gs_env_index;\nstatic unsigned gs_track, gs_tracks_page = 1;')
-app=app.replace('        if (k == B_OCTDN)', '        if (k == B_HOME) {\n            gs_tracks_page = !gs_tracks_page;\n            app_say("HOME", gs_tracks_page ? "TRACKS" : "CONTROLS");\n        } else if (k == B_OCTDN)')
-app=app.replace('        } else if (k == EN_PRESET) {', '        } else if (k == EN_SELECT) {\n            gs_track = (unsigned)(((int)gs_track + e % 4 + 4) % 4);\n            app_say("TRACK", gs_track == 0 ? "TONESCAPE" : gs_track == 1 ? "BASS" : gs_track == 2 ? "DRUMS PLANNED" : "LEAD PLANNED");\n        } else if (k == EN_PRESET) {')
-# Override only the middle screen region; keep the original header and keyboard.
-old='    for (i = 0; i < NB; i++)\n        cell(4 + (int32_t)(i % 4u) * 58, (int32_t)(i / 4u) * 21, 56, BTN_NAME[i], (ui.btn >> i) & 1u);'
+# SLOOP control mapping: ALGORITHM chooses track, SELECT changes tempo/pages.
+# HOME returns to TRACKS; tapping a function button opens/cycles its pages.
+# These are navigation shells, not claims that recording/sequencing is ready.
+app=app.replace('static unsigned gs_env_index;', 'static unsigned gs_env_index;\\nstatic unsigned gs_track, gs_page, gs_page_num;\\nstatic int gs_tempo = 90;')
+app=app.replace('        if (k == B_OCTDN)', '''        if (k == B_HOME) {
+            gs_page = 0; gs_page_num = 0;
+            app_say("HOME", "TRACKS");
+        } else if (k == B_ENV || k == B_LFO || k == B_FX ||
+                   k == B_SEL || k == B_EDIT || k == B_ARP ||
+                   k == B_SEQ || k == B_GLO || k == B_SAVE) {
+            unsigned next = k == B_ENV ? 1u : k == B_LFO ? 2u :
+                k == B_FX ? 3u : k == B_SEL ? 4u : k == B_EDIT ? 5u :
+                k == B_ARP ? 6u : k == B_SEQ ? 7u : k == B_GLO ? 8u : 9u;
+            if (gs_page == next) gs_page_num = (gs_page_num + 1u) % 3u;
+            else { gs_page = next; gs_page_num = 0; }
+            app_say("PAGE", BTN_NAME[k]);
+        } else if (k == B_OCTDN)''')
+app=app.replace('        } else if (k == EN_PRESET) {', '''        } else if (k == EN_SELECT) {
+            if (gs_page == 0) {
+                gs_tempo += e;
+                if (gs_tempo < 40) gs_tempo = 40;
+                if (gs_tempo > 240) gs_tempo = 240;
+                int_text(gs_tempo, t);
+                app_say("BPM", t);
+            } else {
+                gs_page_num = (unsigned)(((int)gs_page_num + e % 3 + 3) % 3);
+                app_say("PAGE", gs_page_num == 0 ? "1" : gs_page_num == 1 ? "2" : "3");
+            }
+        } else if (k == EN_PRESET) {''')
+app=app.replace('        } else if (k == EN_ALGO) {', '''        } else if (k == EN_ALGO) {
+            gs_track = (unsigned)(((int)gs_track + e % 4 + 4) % 4);
+            app_say("TRACK", gs_track == 0 ? "TONESCAPE" : gs_track == 1 ? "BASS" : gs_track == 2 ? "DRUMS PLANNED" : "LEAD PLANNED");
+        } else if (k == EN_K1) {''')
+# The last replacement redirects the former intensity branch into K1, so
+# ALGORITHM remains dedicated to track selection like SLOOP.
+old='    for (i = 0; i < NB; i++)\\n        cell(4 + (int32_t)(i % 4u) * 58, (int32_t)(i / 4u) * 21, 56, BTN_NAME[i], (ui.btn >> i) & 1u);'
 assert app.count(old)==1
-app=app.replace(old, '''    if (gs_tracks_page) {
+app=app.replace(old, '''    if (gs_page == 0) {
         static const char *const names[4] = {"TONESCAPE", "BASS", "DRUMS", "LEAD"};
-        static const char *const desc[4] = {"EVOLVING PAD", "DEEP SUB", "PLANNED", "PLANNED"};
-        cv_text(8, 3, &FONT_B, "TRACKS", C_WHITE);
+        static const char *const desc[4] = {"AMBIENT", "SUB BASS", "COMING", "COMING"};
+        cv_text(8, 2, &FONT_B, "TRACKS", C_WHITE);
         for (i = 0; i < 4; i++) {
-            int32_t y = 26 + (int32_t)i * 27;
-            cv_rect(4, y, 232, 24, i == gs_track ? C_HI : C_LINE);
-            cv_text(12, y + 3, &FONT_XS, names[i], i == gs_track ? C_WHITE : C_GRAY);
-            cv_text(125, y + 3, &FONT_XS, desc[i], i == gs_track ? C_HI : C_DIM);
+            int32_t y = 23 + (int32_t)i * 25;
+            cv_rect(4, y, 232, 22, i == gs_track ? C_HI : C_LINE);
+            cv_text(12, y + 2, &FONT_XS, names[i], i == gs_track ? C_BLACK : C_WHITE);
+            cv_text(133, y + 2, &FONT_XS, desc[i], i == gs_track ? C_BLACK : C_GRAY);
         }
-        cv_text(8, 137, &FONT_XS, "SELECT: TRACK   HOME: BACK", C_GRAY);
+        int_text(gs_tempo, t);
+        cv_text(8, 127, &FONT_XS, "BPM", C_GRAY);
+        cv_text(45, 127, &FONT_XS, t, C_HI);
+        cv_text(100, 127, &FONT_XS, "ALGO: TRACK", C_GRAY);
     } else {
-        for (i = 0; i < NB; i++)
-            cell(4 + (int32_t)(i % 4u) * 58, (int32_t)(i / 4u) * 21, 56, BTN_NAME[i], (ui.btn >> i) & 1u);''')
-# Close the added branch after the existing encoder list, immediately before blit.
-old='    cv_blit(0, 36);'
-assert app.count(old)==1
-app=app.replace(old,'    }\n    cv_blit(0, 36);')
-# Ensure the new page opens at boot and all changes use the hardware UI.
-app=app.replace('    gs_env_index = 0;', '    gs_track = 0; gs_tracks_page = 1;\n    gs_env_index = 0;')
+        static const char *const pages[] = {"TRACKS", "ENV", "LFO", "FX", "SCALE", "EDIT", "ARP", "SEQ", "MIX", "SONG"};
+        cv_text(8, 4, &FONT_B, pages[gs_page], C_WHITE);
+        cv_text(170, 7, &FONT_XS, gs_page_num == 0 ? "PAGE 1" : gs_page_num == 1 ? "PAGE 2" : "PAGE 3", C_HI);
+        cv_rect(6, 31, 228, 85, C_LINE);
+        cv_text(14, 40, &FONT_XS, gs_track == 0 ? "TONESCAPE" : gs_track == 1 ? "BASS" : gs_track == 2 ? "DRUMS" : "LEAD", C_HI);
+        cv_text(14, 67, &FONT_XS, gs_page == 1 ? "PAD SHAPE / ENVELOPE" :
+            gs_page == 2 ? "SLOW MOVEMENT" : gs_page == 3 ? "SPACE / WASH" :
+            gs_page == 4 ? "KEY / CHORD" : gs_page == 5 ? "EDIT (PLANNED)" :
+            gs_page == 6 ? "ARP (PLANNED)" : gs_page == 7 ? "STEPS (PLANNED)" :
+            gs_page == 8 ? "TRACK LEVELS (PLANNED)" : "SECTIONS (PLANNED)", C_GRAY);
+        cv_text(8, 128, &FONT_XS, "SELECT: PAGE  HOME: TRACKS", C_GRAY);
+    }''')
+app=app.replace('    gs_track = 0; gs_tracks_page = 1;', '    gs_track = 0; gs_page = 0; gs_page_num = 0; gs_tempo = 90;')
 # Display the actual environment, rather than the now-unused sine/triangle setting.
 old='cv_text(112, 36, &FONT_XS, WAVE_NAME[set.wave], C_HI);'
 assert app.count(old)==1
