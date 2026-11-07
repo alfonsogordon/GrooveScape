@@ -21,10 +21,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: Native C DSP smoke test
         run: |
-          cc -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer tests/test_pad.c firmware/audio/pad_dsp.c -lm -o /tmp/gs-pad-test
-          /tmp/gs-pad-test
-          cc -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=undefined -fno-omit-frame-pointer tests/test_bass.c firmware/audio/bass_dsp.c -lm -o /tmp/gs-bass-test
-          /tmp/gs-bass-test
+          set -o pipefail
+          {
+            cc -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer tests/test_pad.c firmware/audio/pad_dsp.c -lm -o /tmp/gs-pad-test
+            /tmp/gs-pad-test
+            cc -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=undefined -fno-omit-frame-pointer tests/test_bass.c firmware/audio/bass_dsp.c -lm -o /tmp/gs-bass-test
+            /tmp/gs-bass-test
+          } 2>&1 | tee /tmp/groovescape-dsp-test.log
       - name: Validate integration script syntax
         run: python3 -m py_compile scripts/integrate_pad.py
       - name: Install FM1 build Python dependencies
@@ -59,7 +62,7 @@ jobs:
         if: always()
         run: |
           mkdir -p .work/diagnostics
-          cp /tmp/groovescape-integration.log /tmp/groovescape-host-build.log /tmp/groovescape-host-test.log .work/diagnostics/ 2>/dev/null || true
+          cp /tmp/groovescape-dsp-test.log /tmp/groovescape-integration.log /tmp/groovescape-host-build.log /tmp/groovescape-host-test.log .work/diagnostics/ 2>/dev/null || true
       - name: Upload host diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -74,6 +77,8 @@ jobs:
           {
             echo "Commit: $GITHUB_SHA"
             echo "Run: $GITHUB_RUN_ID"
+            echo "DSP test log (last 120 lines):"
+            tail -n 120 /tmp/groovescape-dsp-test.log 2>/dev/null || true
             echo "Integration log (last 120 lines):"
             tail -n 120 /tmp/groovescape-integration.log 2>/dev/null || true
             echo "Host build log (last 120 lines):"
