@@ -1,35 +1,13 @@
-Commit: b296ef2e69e375a10688890c99e8354e438b6cd0
-Host stage status: success
-Run: 42419981420
+Commit: 0c8f6a77a48317fe0629d6a86d9cd8e907719531
+Host stage status: failure
+Run: 42420638629
 DSP test log (last 120 lines):
-DSP benchmark: 200 x 256 frames, CPU 355.54 ms, avg 1.778 ms/block, deadline 5.805 ms/block (host only)\nPASS: 44.1k stereo pad; peak=746959, wash tail=3177347047\nPASS: native bass, peak=1705858
+DSP benchmark: 200 x 256 frames, CPU 221.88 ms, avg 1.109 ms/block, deadline 5.805 ms/block (host only)\nPASS: 44.1k stereo pad; peak=746959, wash tail=3177347047\nPASS: native bass, peak=1705858
 Integration log (last 120 lines):
-Generated /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape. Build with: /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/tools/build.py /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape --host
-BLE disabled; prototype ID. DO NOT FLASH hardware.
+Traceback (most recent call last):
+  File "/home/runner/work/GrooveScape/GrooveScape/scripts/integrate_pad.py", line 65, in <module>
+    assert app.count(old)==1
+           ^^^^^^^^^^^^^^^^^
+AssertionError
 Host build log (last 120 lines):
-In file included from /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/lib/touch.c:6,
-                 from /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/host/plat_host.c:1636:
-/home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/lib/sense.c: In function ‘sense_pressure’:
-/home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/lib/sense.c:228:33: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
-  228 |         rel = k->dland > k->d ? k->dland - k->d : 0u;
-      |                                 ^~~~~~~~~~~~~~~
-/home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/lib/sense.c:231:34: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
-  231 |         rel = k->v > k->floor_ ? k->v - k->floor_ : 0u;
-      |                                  ^~~~~~~~~~~~~~~~
-font T: BarlowSemiCondensed-SemiBold.ttf 10px h 12, digit adv 5, 3600 B
-font XS: BarlowSemiCondensed-SemiBold.ttf 12px h 15, digit adv 6, 7005 B
-font S: BarlowSemiCondensed-Medium.ttf 15px h 16, digit adv 7, 8576 B
-font B: BarlowSemiCondensed-Bold.ttf 15px h 16, digit adv 8, 8752 B
-font M: BarlowSemiCondensed-SemiBold.ttf 23px h 24, digit adv 12, 11832 B
-font L: BarlowSemiCondensed-Bold.ttf 31px h 32, digit adv 16, 19776 B
-font set barlow: 60782 B (approx)
-words: 3 own + 51 common -> /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape/web/words/95a41ce197.json (1059 B)
-host     /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape/build/host/groovescape_host
 Host test log (last 120 lines):
-  ok note == 60
-  ok note == -1
-  ok octave == 1
-  ok note == 60
-  ok peak -33.0 dBFS (min -42)
-  ok note == -1
-host: 4688 ms simulated, 30 blits, render 23.8% of real time (host CPU)
