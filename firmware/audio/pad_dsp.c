@@ -62,7 +62,15 @@ static float gs_clampf(float x,float lo,float hi){return x<lo?lo:(x>hi?hi:x);}
 void gs_pad_init(gs_pad *p){memset(p,0,sizeof *p);p->hz=110.0f;gs_pad_environment(p,0,0.5f);}
 void gs_pad_note(gs_pad *p,float hz,int gate){if(gate && isfinite(hz))p->hz=gs_clampf(hz,30.0f,1500.0f);p->gate=(uint8_t)(gate!=0);}
 void gs_pad_panic(gs_pad *p){p->gate=0;p->env=0.0f;memset(p->wash_l,0,sizeof p->wash_l);memset(p->wash_r,0,sizeof p->wash_r);p->wash_pos_l=0;p->wash_pos_r=0;}
-void gs_pad_environment(gs_pad *p,unsigned environment,float intensity){p->environment=(uint8_t)(environment%16u);p->intensity=isfinite(intensity)?gs_clampf(intensity,0.0f,1.0f):0.5f;\n const float *s=spec[p->environment];\n for(unsigned j=0;j<16;j++){\n  float fi=(float)j;\n  p->harmonic_weight[j]=powf(1.0f/(1.0f+fi),.72f+s[1]*.65f);\n  p->odd_l[j]=2.0f*gs_hash(.37f+fi*11.31f)-1.0f;\n  p->odd_r[j]=2.0f*gs_hash(1.11f+fi*11.31f)-1.0f;\n }\n}
+void gs_pad_environment(gs_pad *p,unsigned environment,float intensity){p->environment=(uint8_t)(environment%16u);p->intensity=isfinite(intensity)?gs_clampf(intensity,0.0f,1.0f):0.5f;
+ const float *s=spec[p->environment];
+ for(unsigned j=0;j<16;j++){
+  float fi=(float)j;
+  p->harmonic_weight[j]=powf(1.0f/(1.0f+fi),.72f+s[1]*.65f);
+  p->odd_l[j]=2.0f*gs_hash(.37f+fi*11.31f)-1.0f;
+  p->odd_r[j]=2.0f*gs_hash(1.11f+fi*11.31f)-1.0f;
+ }
+}
 void gs_pad_render(gs_pad *p,int32_t *lr,uint32_t frames,uint32_t master_q12){
  const float *s=spec[p->environment%16u];
  const float master=gs_clampf((float)master_q12/4096.0f,0.0f,1.0f);
