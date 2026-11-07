@@ -24,6 +24,15 @@ int main(void){
    }
   }
  }
+ /* Four texture voices must advance independently and retain different phases.
+    A regression to the old single oscillator would fail this check. */
+ gs_pad_init(&p);gs_pad_note(&p,220.0f,1);
+ for(unsigned b=0;b<8;b++)gs_pad_render(&p,buffer,256,4096);
+ if(p.voice_phase[0]==p.voice_phase[1] ||
+    p.voice_phase[1]==p.voice_phase[2] ||
+    p.voice_lfo[0]==p.voice_lfo[3]){
+  fprintf(stderr,"FAIL independent ToneScape texture voices\\n");return 8;
+ }
  /* Wash should create an audible tail after a note release, but panic must
     still clear both channels and all delay state immediately. */
  gs_pad_init(&p);gs_pad_environment(&p,5,0.75f);gs_pad_note(&p,220.0f,1);
