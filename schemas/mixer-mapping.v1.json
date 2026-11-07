@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "project": "GrooveScape",
+  "status": "proposed-not-implemented",
+  "tracks": [
+    {
+      "id": "pad",
+      "strip": 1
+    },
+    {
+      "id": "bass",
+      "strip": 2
+    },
+    {
+      "id": "lead",
+      "strip": 3
+    },
+    {
+      "id": "drums",
+      "strip": 4
+    },
+    {
+      "id": "kick",
+      "strip": 5
+    },
+    {
+      "id": "snare",
+      "strip": 6
+    },
+    {
+      "id": "hats",
+      "strip": 7
+    },
+    {
+      "id": "fx",
+      "strip": 8
+    }
+  ],
+  "smc": {
+    "mode": "DAW/Mackie",
+    "bleRole": "host",
+    "faders": {
+      "message": "pitchbend",
+      "channels": "1-8",
+      "pickup": true
+    },
+    "encoders": {
+      "message": "cc",
+      "channel": 1,
+      "controllers": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+      ],
+      "encoding": "relative-sign-magnitude"
+    },
+    "buttons": {
+      "message": "note-on",
+      "channel": 1
+    },
+    "transport": {
+      "stop": 93,
+      "play": 94,
+      "record": 95
+    }
+  },
+  "safety": {
+    "bluetoothAutostart": false,
+    "flashEnabled": false
+  }
+}
