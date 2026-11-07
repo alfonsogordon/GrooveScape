@@ -49,7 +49,7 @@ app=app.replace(old,'void app_init(void)\n{\n    gs_pad_init(&gs_voice);\n    gs
 # The pad track is always ToneScape V2. PRESET selects one of its original\n# 16 environments, never an alternative synth engine. ALGO adjusts intensity.
 old='        } else if (k == EN_PRESET) {\n            set.wave ^= 1u;\n            set_dirty = 1;\n            app_say("WAVE", WAVE_NAME[set.wave]);'
 assert app.count(old)==1
-app=app.replace(old,'        } else if (k == EN_PRESET) {\n            gs_env_index = (unsigned)(((int)gs_env_index + e % 16 + 16) % 16);\n            gs_pad_environment(&gs_voice, gs_env_index, (float)gs_intensity_percent / 100.0f);\n            app_say("TONESCAPE ENV", gs_env_names[gs_env_index]);\n        } else if (k == EN_ALGO) {\n            gs_intensity_percent += e * 5;\n            if (gs_intensity_percent < 0) gs_intensity_percent = 0;\n            if (gs_intensity_percent > 100) gs_intensity_percent = 100;\n            gs_pad_environment(&gs_voice, gs_env_index, (float)gs_intensity_percent / 100.0f);\n            int_text(gs_intensity_percent, t);\n            app_say("TONESCAPE INT", t);')
+app=app.replace(old,'        } else if (k == EN_PRESET) {\n            gs_env_index = (unsigned)(((int)gs_env_index + e % 16 + 16) % 16);\n            gs_pad_environment(&gs_voice, gs_env_index, (float)gs_intensity_percent / 100.0f);\n            app_say("TONESCAPE ENV", gs_env_names[gs_env_index]);\n        } else if (k == EN_ALGO) {\n            gs_intensity_percent += e * 5;\n            if (gs_intensity_percent < 0) gs_intensity_percent = 0;\n            if (gs_intensity_percent > 100) gs_intensity_percent = 100;\n            gs_pad_environment(&gs_voice, gs_env_index, (float)gs_intensity_percent / 100.0f);\n            int_text(gs_intensity_percent, t);\n            app_say("TONESCAPE INT", t);\n            } else {\n                int_text((int32_t)gs_page_num + 1, t);\n                app_say("PAGE KNOB", t);\n            }')
 # Existing template wave setting is only 0..1; this integration keeps that
 # setting for persistence and uses a separate transient environment selection.
 # Avoid altering the stored wave's validation and existing PRESET behaviour.
@@ -87,7 +87,7 @@ app=app.replace('        } else if (k == EN_PRESET) {', '''        } else if (k 
 app=app.replace('        } else if (k == EN_ALGO) {', '''        } else if (k == EN_ALGO) {
             gs_track = (unsigned)(((int)gs_track + e % 4 + 4) % 4);
             app_say("TRACK", gs_track == 0 ? "TONESCAPE" : gs_track == 1 ? "BASS" : gs_track == 2 ? "DRUMS PLANNED" : "LEAD PLANNED");
-        } else if (k == EN_K1) {''')
+        } else if (k >= EN_K1 && k <= EN_K4) {\n            unsigned knob = k - EN_K1;\n            if (gs_page == 0 && gs_track == 0 && knob == 0) {''')
 # The last replacement redirects the former intensity branch into K1, so
 # ALGORITHM remains dedicated to track selection like SLOOP.
 old='    for (i = 0; i < NB; i++)\n        cell(4 + (int32_t)(i % 4u) * 58, (int32_t)(i / 4u) * 21, 56, BTN_NAME[i], (ui.btn >> i) & 1u);'
