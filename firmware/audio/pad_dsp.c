@@ -20,19 +20,19 @@ static const float spec[16][6] = {
 static float gs_hash(float x){float a=sinf(x*12.9898f+78.233f)*43758.5453f;return fabsf(a)-floorf(fabsf(a));}
 static float gs_soft(float x,float drive){return tanhf(x*drive)/fmaxf(.001f,drive);}
 static float gs_smooth(float x){x=fmaxf(0.0f,fminf(1.0f,x));return x*x*(3.0f-2.0f*x);}
-static float gs_texture(float phase,const float *s,float intensity,float seed){
+static float gs_texture(float phase,const float *s,float intensity,float seed,const float *weights,const float *odds){
  const float t=gs_smooth(intensity),density=4.0f+12.0f*t;
  const float driftBase=.002f+.010f*s[3]+.016f*t;
  float sum=0.0f,weightSum=0.0f;
  for(unsigned j=0;j<16;j++){
   float fi=(float)j,active=fmaxf(0.0f,fminf(1.0f,density-fi));
   if(active<=0.0f)continue;
-  float harmonic=1.0f+fi,odd=2.0f*gs_hash(seed+fi*11.31f)-1.0f;
+  float harmonic=1.0f+fi,odd=odds[j];
   float ratio=harmonic*(1.0f+s[2]*.035f*odd*(fi/15.0f));
   float drift=sinf(phase*(.0009f+fi*.00013f)+seed+fi)*driftBase*(1.0f+fi*.08f);
   float formant=.72f+.28f*sinf(phase*.0017f+seed*1.9f+fi*.61f);
   float pp=phase*ratio*(1.0f+drift)+seed*(2.7f+fi*.13f);
-  float w=active*powf(1.0f/harmonic,.72f+s[1]*.65f)
+  float w=active*weights[j]
           *(1.0f+s[1]*t*fi*.045f)*formant;
   float partial=sinf(pp)+.23f*sinf(pp*(1.997f+s[2]*.03f)+seed);
   sum+=gs_soft(partial,1.0f+s[4]*.55f+t*.35f)*w;
@@ -59,10 +59,10 @@ static float gs_texture(float phase,const float *s,float intensity,float seed){
  return gs_soft(x,.92f+t*.95f+s[4]*t*.85f)*.82f;
 }
 static float gs_clampf(float x,float lo,float hi){return x<lo?lo:(x>hi?hi:x);}
-void gs_pad_init(gs_pad *p){memset(p,0,sizeof *p);p->hz=110.0f;p->intensity=0.5f;}
+void gs_pad_init(gs_pad *p){memset(p,0,sizeof *p);p->hz=110.0f;gs_pad_environment(p,0,0.5f);}
 void gs_pad_note(gs_pad *p,float hz,int gate){if(gate && isfinite(hz))p->hz=gs_clampf(hz,30.0f,1500.0f);p->gate=(uint8_t)(gate!=0);}
 void gs_pad_panic(gs_pad *p){p->gate=0;p->env=0.0f;memset(p->wash_l,0,sizeof p->wash_l);memset(p->wash_r,0,sizeof p->wash_r);p->wash_pos_l=0;p->wash_pos_r=0;}
-void gs_pad_environment(gs_pad *p,unsigned environment,float intensity){p->environment=(uint8_t)(environment%16u);p->intensity=isfinite(intensity)?gs_clampf(intensity,0.0f,1.0f):0.5f;}
+void gs_pad_environment(gs_pad *p,unsigned environment,float intensity){p->environment=(uint8_t)(environment%16u);p->intensity=isfinite(intensity)?gs_clampf(intensity,0.0f,1.0f):0.5f;\n const float *s=spec[p->environment];\n for(unsigned j=0;j<16;j++){\n  float fi=(float)j;\n  p->harmonic_weight[j]=powf(1.0f/(1.0f+fi),.72f+s[1]*.65f);\n  p->odd_l[j]=2.0f*gs_hash(.37f+fi*11.31f)-1.0f;\n  p->odd_r[j]=2.0f*gs_hash(1.11f+fi*11.31f)-1.0f;\n }\n}
 void gs_pad_render(gs_pad *p,int32_t *lr,uint32_t frames,uint32_t master_q12){
  const float *s=spec[p->environment%16u];
  const float master=gs_clampf((float)master_q12/4096.0f,0.0f,1.0f);
@@ -76,8 +76,8 @@ void gs_pad_render(gs_pad *p,int32_t *lr,uint32_t frames,uint32_t master_q12){
   p->drift+=GS_PI2*.11f/GS_SR;
   if(p->drift>=GS_PI2)p->drift-=GS_PI2;
   float phase=p->phase*(1.0f+s[5]*.0015f*sinf(p->drift));
-  float left=gs_texture(phase,s,p->intensity,.37f);
-  float right=gs_texture(phase,s,p->intensity,1.11f);
+  float left=gs_texture(phase,s,p->intensity,.37f,p->harmonic_weight,p->odd_l);
+  float right=gs_texture(phase,s,p->intensity,1.11f,p->harmonic_weight,p->odd_r);
   /* Stereo wash: cross-fed, decaying diffusion taps. Tail continues after note-off. */
   float wet_l=p->wash_l[p->wash_pos_l];
   float wet_r=p->wash_r[p->wash_pos_r];
