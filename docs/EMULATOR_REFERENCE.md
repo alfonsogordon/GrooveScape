@@ -16,3 +16,7 @@ Next technical steps:
 2. Port and validate PadVoice.hpp in that base with host DSP tests.
 3. Compile a minimal FM1 firmware image, run it in an emulator, then add pad controls and the other voices.
 4. Keep BLE SMC budget and fail-safe startup throughout; do not flash the user's hardware until image/recovery validation.
+
+## Updated visual reference: Skiff
+
+User prefers https://illuminus5.github.io/skiff/try/ over the JIANT player: the browser should visually resemble the physical FM1, including its front panel, display, keys and encoder. Treat Skiff as the **visual and interaction reference**. The FM1 firmware and emulator runtime remain separate technical decisions; aim for shared app code, not an independent HTML-only imitation. Exact Skiff implementation/assets have not been inspected or licensed for reuse. Do not copy them without verifying permission.
