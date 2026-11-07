@@ -44,5 +44,21 @@ int main(void){
  for(unsigned i=0;i<512;i++)if(buffer[i]!=0){
   fprintf(stderr,"FAIL wash panic\\n");return 6;
  }
+ /* Exercise all 16 environments and both intensity extremes after repeated
+    switches to catch stale precomputed modal coefficients. */
+ for(unsigned env=0;env<16;env++){
+  gs_pad_init(&p);
+  for(unsigned intensity=0;intensity<=1;intensity++){
+   gs_pad_environment(&p,env,(float)intensity);
+   gs_pad_note(&p,55.0f+(float)env*27.0f,1);
+   for(unsigned b=0;b<12;b++){
+    gs_pad_render(&p,buffer,256,4096);
+    for(unsigned i=0;i<512;i++)if(buffer[i]>8388607||buffer[i]<-8388608){
+     fprintf(stderr,"FAIL env output bounds %u\\n",env);return 7;
+    }
+   }
+   gs_pad_note(&p,0.0f,0);
+  }
+ }
  printf("PASS: 44.1k stereo pad; peak=%d, wash tail=%lld\\n",peak,(long long)tail_energy);return 0;
 }
