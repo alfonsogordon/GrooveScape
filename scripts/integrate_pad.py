@@ -25,7 +25,7 @@ anchor='#include "fastmath.h"'
 assert app.count(anchor)==1
 app=app.replace(anchor,anchor+'\n#include "pad_dsp.h"\nstatic gs_pad gs_voice;\n#include \"bass_dsp.h\"\nstatic gs_bass gs_bass_voice;\nstatic int gs_pad_key = -1, gs_bass_key = -1;')
 # Expose the active pad environment on the real FM1 screen.
-app=app.replace('static gs_pad gs_voice;', 'static gs_pad gs_voice;\nstatic unsigned gs_env_index;\nstatic int gs_intensity_percent = 65;\nstatic const char *const gs_env_names[16] = {\n    "DRIFT", "BLOOM", "EMBER", "GLASS CHOIR", "DEEP FOREST", "CATHEDRAL",\n    "OCEAN", "RIFT", "MIST", "MACHINE AIR", "TAPE GHOST", "HOLLOW EARTH",\n    "NEON WEATHER", "ICE BLOOM", "AURORA BODY", "NOIR VOID"\n};')
+app=app.replace('static gs_pad gs_voice;', 'static gs_pad gs_voice;\nstatic unsigned gs_env_index;\nstatic int gs_intensity_percent = 35;\nstatic const char *const gs_env_names[16] = {\n    "DRIFT", "BLOOM", "EMBER", "GLASS CHOIR", "DEEP FOREST", "CATHEDRAL",\n    "OCEAN", "RIFT", "MIST", "MACHINE AIR", "TAPE GHOST", "HOLLOW EARTH",\n    "NEON WEATHER", "ICE BLOOM", "AURORA BODY", "NOIR VOID"\n};')
 old='    voice_vel = (float)vel / 127.0f;\n    voice_note = note;'
 assert app.count(old)==1
 app=app.replace(old,'    voice_note = note;\n    if (note < 48) {\n        gs_bass_key = note;\n        gs_bass_note(&gs_bass_voice, 440.0f * fm_exp2f((float)(note - 69) / 12.0f), 1);\n    } else {\n        gs_pad_key = note;\n        gs_pad_note(&gs_voice, 440.0f * fm_exp2f((float)(note - 69) / 12.0f), 1);\n    }')
@@ -146,7 +146,7 @@ app=app.replace('static void note_on(int32_t note, uint32_t vel)\n{', 'static vo
 # original panic block has been replaced; avoid broad substitutions.
 # Keep the native screen and audio environment synchronized at boot.
 # In particular, resetting the DSP must not leave a stale UI selection.
-app=app.replace('    gs_pad_init(&gs_voice);', '    gs_pad_key = -1; gs_bass_key = -1;\n    gs_env_index = 0;\n    gs_intensity_percent = 65;\n    gs_pad_init(&gs_voice);\n    gs_pad_environment(&gs_voice, gs_env_index, 0.65f);')
+app=app.replace('    gs_pad_init(&gs_voice);', '    gs_pad_key = -1; gs_bass_key = -1;\n    gs_env_index = 0;\n    gs_intensity_percent = 35;\n    gs_pad_init(&gs_voice);\n    gs_pad_environment(&gs_voice, gs_env_index, 0.35f);')
 # The template only supports BLE when configured; keep all Bluetooth paths
 # off in this unverified native prototype to avoid hardware crash regressions.
 assert app.count('static gs_pad gs_voice;') == 1
