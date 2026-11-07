@@ -23,15 +23,15 @@ for filename in ("pad_dsp.c","pad_dsp.h","bass_dsp.c","bass_dsp.h"):
 app=(target/"app.c").read_text()
 anchor='#include "fastmath.h"'
 assert app.count(anchor)==1
-app=app.replace(anchor,anchor+'\n#include "pad_dsp.h"\nstatic gs_pad gs_voice;\n#include \"bass_dsp.h\"\nstatic gs_bass gs_bass_voice;')
+app=app.replace(anchor,anchor+'\n#include "pad_dsp.h"\nstatic gs_pad gs_voice;\n#include \"bass_dsp.h\"\nstatic gs_bass gs_bass_voice;\nstatic int gs_pad_key = -1, gs_bass_key = -1;')
 # Expose the active pad environment on the real FM1 screen.
 app=app.replace('static gs_pad gs_voice;', 'static gs_pad gs_voice;\nstatic unsigned gs_env_index;\nstatic int gs_intensity_percent = 65;\nstatic const char *const gs_env_names[16] = {\n    "DRIFT", "BLOOM", "EMBER", "GLASS CHOIR", "DEEP FOREST", "CATHEDRAL",\n    "OCEAN", "RIFT", "MIST", "MACHINE AIR", "TAPE GHOST", "HOLLOW EARTH",\n    "NEON WEATHER", "ICE BLOOM", "AURORA BODY", "NOIR VOID"\n};')
 old='    voice_vel = (float)vel / 127.0f;\n    voice_note = note;'
 assert app.count(old)==1
-app=app.replace(old,'    voice_note = note;\n    if (note < 48) {\n        gs_bass_note(&gs_bass_voice, 440.0f * fm_exp2f((float)(note - 69) / 12.0f), 1);\n    } else {\n        gs_pad_note(&gs_voice, 440.0f * fm_exp2f((float)(note - 69) / 12.0f), 1);\n    }')
+app=app.replace(old,'    voice_note = note;\n    if (note < 48) {\n        gs_bass_key = note;\n        gs_bass_note(&gs_bass_voice, 440.0f * fm_exp2f((float)(note - 69) / 12.0f), 1);\n    } else {\n        gs_pad_key = note;\n        gs_pad_note(&gs_voice, 440.0f * fm_exp2f((float)(note - 69) / 12.0f), 1);\n    }')
 old='    if (voice_note == note)\n        voice_note = -1;'
 assert app.count(old)==1
-app=app.replace(old,'    if (voice_note == note) {\n        voice_note = -1;\n        gs_pad_note(&gs_voice, 0.0f, 0);\n        gs_bass_note(&gs_bass_voice, 0.0f, 0);\n    }')
+app=app.replace(old,'    if (voice_note == note) {\n        voice_note = -1;\n        if (gs_pad_key == note) { gs_pad_note(&gs_voice, 0.0f, 0); gs_pad_key = -1; }\n        if (gs_bass_key == note) { gs_bass_note(&gs_bass_voice, 0.0f, 0); gs_bass_key = -1; }\n    }')
 start=app.index('void app_render(int32_t *lr, uint32_t n, uint32_t master_q12)')
 end=app.index('\nvoid app_panic(void)',start)
 app=app[:start]+'''void app_render(int32_t *lr, uint32_t n, uint32_t master_q12)
@@ -42,7 +42,7 @@ app=app[:start]+'''void app_render(int32_t *lr, uint32_t n, uint32_t master_q12)
 '''+app[end:]
 old='    voice_note = -1;\n    voice_level = 0.0f;'
 assert app.count(old)==1
-app=app.replace(old,'    voice_note = -1;\n    gs_pad_panic(&gs_voice);\n    gs_bass_panic(&gs_bass_voice);')
+app=app.replace(old,'    voice_note = -1;\n    gs_pad_key = -1; gs_bass_key = -1;\n    gs_pad_panic(&gs_voice);\n    gs_bass_panic(&gs_bass_voice);')
 old='void app_init(void)\n{'
 assert app.count(old)==1
 app=app.replace(old,'void app_init(void)\n{\n    gs_pad_init(&gs_voice);\n    gs_bass_init(&gs_bass_voice);')
@@ -67,7 +67,7 @@ app=app.replace('static void note_on(int32_t note, uint32_t vel)\n{', 'static vo
 # original panic block has been replaced; avoid broad substitutions.
 # Keep the native screen and audio environment synchronized at boot.
 # In particular, resetting the DSP must not leave a stale UI selection.
-app=app.replace('    gs_pad_init(&gs_voice);', '    gs_env_index = 0;\n    gs_intensity_percent = 65;\n    gs_pad_init(&gs_voice);\n    gs_pad_environment(&gs_voice, gs_env_index, 0.65f);')
+app=app.replace('    gs_pad_init(&gs_voice);', '    gs_pad_key = -1; gs_bass_key = -1;\n    gs_env_index = 0;\n    gs_intensity_percent = 65;\n    gs_pad_init(&gs_voice);\n    gs_pad_environment(&gs_voice, gs_env_index, 0.65f);')
 # The template only supports BLE when configured; keep all Bluetooth paths
 # off in this unverified native prototype to avoid hardware crash regressions.
 assert app.count('static gs_pad gs_voice;') == 1
