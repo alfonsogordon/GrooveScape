@@ -1,6 +1,6 @@
-Commit: 64cbc832c9e956d63e0f1202fc0ad779801dc16b
+Commit: 615a4a98d472b45ba3b3d153a267abb49ddb3fb5
 Host stage status: failure
-Run: 42422196527
+Run: 42422216740
 DSP test log (last 120 lines):
 In file included from tests/test_pad.c:1:
 tests/../firmware/audio/pad_dsp.h:12:82: error: stray ‘\’ in program
@@ -18,6 +18,12 @@ firmware/audio/pad_dsp.h:12:83: error: unknown type name ‘nvoid’; did you me
    12 | void gs_pad_render(gs_pad *p, int32_t *lr, uint32_t frames, uint32_t master_q12);\nvoid gs_pad_mix(gs_pad *p, int32_t *lr, uint32_t frames, uint32_t master_q12);
       |                                                                                   ^~~~~
       |                                                                                   void
+firmware/audio/pad_dsp.c:126:6: error: conflicting types for ‘gs_pad_mix’; have ‘void(gs_pad *, int32_t *, uint32_t,  uint32_t)’ {aka ‘void(gs_pad *, int *, unsigned int,  unsigned int)’}
+  126 | void gs_pad_mix(gs_pad *p,int32_t *lr,uint32_t frames,uint32_t master_q12){
+      |      ^~~~~~~~~~
+firmware/audio/pad_dsp.h:12:89: note: previous declaration of ‘gs_pad_mix’ with type ‘int(gs_pad *, int32_t *, uint32_t,  uint32_t)’ {aka ‘int(gs_pad *, int *, unsigned int,  unsigned int)’}
+   12 | void gs_pad_render(gs_pad *p, int32_t *lr, uint32_t frames, uint32_t master_q12);\nvoid gs_pad_mix(gs_pad *p, int32_t *lr, uint32_t frames, uint32_t master_q12);
+      |                                                                                         ^~~~~~~~~~
 Integration log (last 120 lines):
 Host build log (last 120 lines):
 Host test log (last 120 lines):
