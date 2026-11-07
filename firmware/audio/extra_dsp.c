@@ -1,0 +1,37 @@
+#include "extra_dsp.h"
+#include <math.h>
+#include <string.h>
+#define SR 44100.0f
+#define TAU 6.28318530718f
+static float cl(float v,float a,float b){return v<a?a:(v>b?b:v);}
+static void add(int32_t *lr,uint32_t i,float x){int32_t v=(int32_t)cl(x,-7000000.f,7000000.f);for(unsigned k=0;k<2;k++){int64_t s=(int64_t)lr[i*2+k]+v;lr[i*2+k]=(int32_t)(s>8388607?8388607:(s< -8388608?-8388608:s));}}
+void gs_lead_init(gs_lead *p){memset(p,0,sizeof *p);p->hz=440;p->brightness=.45f;}
+void gs_lead_note(gs_lead *p,float hz,int gate){if(gate&&hz>0)p->hz=cl(hz,70,2400);p->gate=(uint8_t)!!gate;}
+void gs_lead_mix(gs_lead *p,int32_t *lr,uint32_t n,uint32_t gain){
+float master=cl((float)gain/4096.f,0,1);
+for(uint32_t i=0;i<n;i++){p->env+=(p->gate?1.f:0.f-p->env)*.0001f; /* slow ghostly release */
+float target=p->gate?1.f:0.f;p->env+=(target-p->env)*(p->gate?.0015f:.00012f);
+p->phase+=p->hz/SR;if(p->phase>=1)p->phase-=1;
+p->mod+=.23f/SR;if(p->mod>=1)p->mod-=1;
+float sh=sinf(TAU*p->phase+1.2f*sinf(TAU*p->phase*2.f));
+float sparkle=sinf(TAU*p->phase*4.01f)*(.10f+.25f*p->brightness);
+float out=(sh*.5f+sparkle)*p->env*master*950000.f;add(lr,i,out);
+}}
+void gs_drums_init(gs_drums *d){memset(d,0,sizeof *d);d->rng=0xC017A12u;d->kick=0.8f;d->snare=0.4f;d->hat=.18f;}
+void gs_drums_mix(gs_drums *d,int32_t *lr,uint32_t n,uint32_t gain,int bpm){
+float master=cl((float)gain/4096.f,0,1);if(bpm<30)bpm=30;if(bpm>300)bpm=300;
+for(uint32_t i=0;i<n;i++){
+if(d->playing){d->beat_pos+=(float)bpm/(60.f*SR)*4.f;
+if(d->beat_pos>=1.f){d->beat_pos-=1.f;d->step=(d->step+1u)&15u;
+if((d->step%8u)==0u)d->kick=1.f;
+if((d->step%8u)==4u)d->snare=.8f;
+if((d->step%4u)==2u)d->hat=.4f;
+}}
+d->phase+= (48.f+95.f*d->kick*d->kick)/SR;if(d->phase>=1)d->phase-=1;
+d->rng^=d->rng<<13;d->rng^=d->rng>>17;d->rng^=d->rng<<5;
+float noise=(float)((int32_t)d->rng)/2147483648.f;
+float kick=sinf(TAU*d->phase)*d->kick;
+float snare=noise*d->snare;float hat=noise*d->hat;
+d->kick*=.9992f;d->snare*=.996f;d->hat*=.984f;
+add(lr,i,(kick*.7f+snare*.22f+hat*.07f)*master*1200000.f);
+}}
