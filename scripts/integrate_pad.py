@@ -118,7 +118,11 @@ assert app.count(old)==1
 app=app.replace(old,'void app_init(void)\n{\n    gs_pad_init(&gs_voice);\n    gs_pad_init(&gs_fading_voice);\n    gs_pad_init(&gs_melody);\n    for (int i=0;i<2;i++) { gs_pad_init(&gs_chord[i]); gs_pad_init(&gs_chord_fading[i]); }\n    gs_bass_init(&gs_bass_voice);\n    gs_lead_init(&gs_lead_voice); gs_drums_init(&gs_drum_voice);')
 # Physical keyboard: white notes, black chord triggers, last black latch.
 app=app.replace('            note_on(note, v);', '''            if (gs_track == 2) {
-                if (k < 16) {
+                if (gs_page != 7) {
+                    /* Outside SEQ the piano is a live drum kit, never a step editor. */
+                    gs_drums_hit(&gs_drum_voice, (unsigned)k % 4u, (float)v / 127.0f);
+                    app_say("DRUM LIVE", k % 4u == 0 ? "KICK" : k % 4u == 1 ? "SNARE" : k % 4u == 2 ? "HAT" : "PERC");
+                } else if (k < 16) {
                     uint16_t bit = (uint16_t)(1u << k);
                     if (gs_page == 7 && gs_page_num == 1) gs_drum_voice.snare_steps[gs_drum_voice.pattern] ^= bit;
                     else if (gs_page == 7 && gs_page_num == 2) gs_drum_voice.hat_steps[gs_drum_voice.pattern] ^= bit;
