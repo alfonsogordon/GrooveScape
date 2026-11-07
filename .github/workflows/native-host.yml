@@ -24,6 +24,8 @@ jobs:
           /tmp/gs-pad-test
       - name: Validate integration script syntax
         run: python3 -m py_compile scripts/integrate_pad.py
+      - name: Install FM1 build Python dependencies
+        run: python3 -m pip install --disable-pip-version-check Pillow
       - name: Get fm1-base
         run: git clone --depth 1 --recurse-submodules https://github.com/charlesvestal/fm1-base.git .work/fm1-base
       - name: Create GrooveScape firmware from upstream template
