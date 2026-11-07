@@ -89,7 +89,10 @@ void gs_pad_render(gs_pad *p,int32_t *lr,uint32_t frames,uint32_t master_q12){
    float moved=ph*(1.0f+motion+s[5]*.0015f*sinf(ph*.0007f+.37f+v));
    float seed=.37f+(float)v*.71f;
    float sample=gs_texture(moved,s,p->intensity,seed,p->harmonic_weight,p->odd_l);
+   /* Original MorphPadEngine adds air harmonics and a warm sub-body,
+      then applies soft texture shaping before its stereo processing. */
    sample+=.040f*s[1]*sinf(ph*5.0f+seed)+.026f*s[0]*sinf(ph*.5f);
+   sample=gs_soft(sample,1.08f);
    float pan=pans[v];
    left+=sample*sqrtf(.5f*(1.0f-pan));
    right+=sample*sqrtf(.5f*(1.0f+pan));
