@@ -57,11 +57,11 @@ app=app.replace(old,'        } else if (k == EN_PRESET) {\n            gs_env_in
 # SLOOP-inspired TRACKS home page on the *actual* FM1 renderer, not a web-only mock.
 # HOME toggles TRACKS / the existing control view; SELECT picks the track.
 # Unimplemented tracks are visibly marked as planned, not represented as working.
-app=app.replace('static unsigned gs_env_index;', 'static unsigned gs_env_index;\\nstatic unsigned gs_track, gs_tracks_page = 1;')
-app=app.replace('        if (k == B_OCTDN)', '        if (k == B_HOME) {\\n            gs_tracks_page = !gs_tracks_page;\\n            app_say("HOME", gs_tracks_page ? "TRACKS" : "CONTROLS");\\n        } else if (k == B_OCTDN)')
-app=app.replace('        } else if (k == EN_PRESET) {', '        } else if (k == EN_SELECT) {\\n            gs_track = (unsigned)(((int)gs_track + e % 4 + 4) % 4);\\n            app_say("TRACK", gs_track == 0 ? "TONESCAPE" : gs_track == 1 ? "BASS" : gs_track == 2 ? "DRUMS PLANNED" : "LEAD PLANNED");\\n        } else if (k == EN_PRESET) {')
+app=app.replace('static unsigned gs_env_index;', 'static unsigned gs_env_index;\nstatic unsigned gs_track, gs_tracks_page = 1;')
+app=app.replace('        if (k == B_OCTDN)', '        if (k == B_HOME) {\n            gs_tracks_page = !gs_tracks_page;\n            app_say("HOME", gs_tracks_page ? "TRACKS" : "CONTROLS");\n        } else if (k == B_OCTDN)')
+app=app.replace('        } else if (k == EN_PRESET) {', '        } else if (k == EN_SELECT) {\n            gs_track = (unsigned)(((int)gs_track + e % 4 + 4) % 4);\n            app_say("TRACK", gs_track == 0 ? "TONESCAPE" : gs_track == 1 ? "BASS" : gs_track == 2 ? "DRUMS PLANNED" : "LEAD PLANNED");\n        } else if (k == EN_PRESET) {')
 # Override only the middle screen region; keep the original header and keyboard.
-old='    for (i = 0; i < NB; i++)\\n        cell(4 + (int32_t)(i % 4u) * 58, (int32_t)(i / 4u) * 21, 56, BTN_NAME[i], (ui.btn >> i) & 1u);'
+old='    for (i = 0; i < NB; i++)\n        cell(4 + (int32_t)(i % 4u) * 58, (int32_t)(i / 4u) * 21, 56, BTN_NAME[i], (ui.btn >> i) & 1u);'
 assert app.count(old)==1
 app=app.replace(old, '''    if (gs_tracks_page) {
         static const char *const names[4] = {"TONESCAPE", "BASS", "DRUMS", "LEAD"};
@@ -80,9 +80,9 @@ app=app.replace(old, '''    if (gs_tracks_page) {
 # Close the added branch after the existing encoder list, immediately before blit.
 old='    cv_blit(0, 36);'
 assert app.count(old)==1
-app=app.replace(old,'    }\\n    cv_blit(0, 36);')
+app=app.replace(old,'    }\n    cv_blit(0, 36);')
 # Ensure the new page opens at boot and all changes use the hardware UI.
-app=app.replace('    gs_env_index = 0;', '    gs_track = 0; gs_tracks_page = 1;\\n    gs_env_index = 0;')
+app=app.replace('    gs_env_index = 0;', '    gs_track = 0; gs_tracks_page = 1;\n    gs_env_index = 0;')
 # Display the actual environment, rather than the now-unused sine/triangle setting.
 old='cv_text(112, 36, &FONT_XS, WAVE_NAME[set.wave], C_HI);'
 assert app.count(old)==1
