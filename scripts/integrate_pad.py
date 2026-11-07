@@ -23,7 +23,7 @@ for filename in ("pad_dsp.c","pad_dsp.h"):
 app=(target/"app.c").read_text()
 anchor='#include "fastmath.h"'
 assert app.count(anchor)==1
-app=app.replace(anchor,anchor+'\n#include "pad_dsp.c"\nstatic gs_pad gs_voice;')
+app=app.replace(anchor,anchor+'\n#include "pad_dsp.h"\nstatic gs_pad gs_voice;')
 old='    voice_vel = (float)vel / 127.0f;\n    voice_note = note;'
 assert app.count(old)==1
 app=app.replace(old,'    voice_note = note;\n    gs_pad_note(&gs_voice, 440.0f * fm_exp2f((float)(note - 69) / 12.0f), 1);')
@@ -61,6 +61,7 @@ app=app.replace('    voice_level = 0.0f;\n', '')
 h=(target/"app.h").read_text().replace('#define APP_NAME "TEMPLATE"','#define APP_NAME "GROOVESCAPE"')
 (target/"app.h").write_text(h)
 toml=(target/"fm1.toml").read_text().replace('name = "TEMPLATE"','name = "GROOVESCAPE"').replace('usb_product = "TEMPLATE FM-1"','usb_product = "GrooveScape FM-1"').replace('ble = true','ble = false').replace('ble_central = true','ble_central = false').replace('id_prefix = "FM-1_11"','id_prefix = "FM-1_9017"')
+toml = toml.replace('o2 = []', 'o2 = ["pad_dsp.c"]')
 (target/"fm1.toml").write_text(toml)
 print(f"Generated {target}. Build with: {base}/tools/build.py {target} --host")
 print("BLE disabled; prototype ID. DO NOT FLASH hardware.")
