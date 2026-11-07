@@ -22,7 +22,7 @@ void gs_bass_mix(gs_bass *b,int32_t *lr,uint32_t frames,uint32_t master_q12){
   if(b->phase>=1.0f)b->phase-=1.0f;
   float saw=2.0f*b->phase-1.0f;
   float sub=sinf(GS_PI2*b->phase);
-  float cutoff=clampf(0.025f+0.18f*b->env,0.0f,0.45f);
+  float cutoff=clampf(b->cutoff*(0.5f+b->env),0.005f,0.45f);
   b->lowpass+=cutoff*(saw-b->lowpass);
   /* Keep the sub dominant and the saw harmonics restrained, leaving
      spectral room for ToneScape's evolving midrange textures. */
