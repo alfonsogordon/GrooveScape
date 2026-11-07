@@ -1,4 +1,5 @@
-Commit: 29e25117cf8b52cb44a236c80a0fc835c580bb7d
-Run: 42414886469
+Commit: bfd267510bd35b2c7eb8dd4114f649e8f4379b6c
+Run: 42416947395
+Integration log (last 120 lines):
 Host build log (last 120 lines):
 Host test log (last 120 lines):
