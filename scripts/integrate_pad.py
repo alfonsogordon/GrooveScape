@@ -52,7 +52,8 @@ app=app.replace(old,old+'\n        else if (k == B_FX) {\n            set.wave =
 # Avoid altering the stored wave's validation and existing PRESET behaviour.
 app=app.replace('            set.wave = (set.wave + 1u) % 16u;\n            gs_pad_environment(&gs_voice, set.wave, 0.65f);\n            set_dirty = 1;', '            static unsigned env_index;\n            env_index = (env_index + 1u) % 16u;\n            gs_pad_environment(&gs_voice, env_index, 0.65f);')
 # The template oscillator variables are unused after replacing its renderer.
-app=app.replace('static float voice_phase, voice_level, gain_now;', 'static float voice_level;')
+app=app.replace('static float voice_phase, voice_level, gain_now;', '')
+app=app.replace('    voice_level = 0.0f;\n', '')
 (target/"app.c").write_text(app)
 h=(target/"app.h").read_text().replace('#define APP_NAME "TEMPLATE"','#define APP_NAME "GROOVESCAPE"')
 (target/"app.h").write_text(h)
