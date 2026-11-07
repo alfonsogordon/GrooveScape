@@ -307,7 +307,18 @@ app=app.replace(old, '''    if (gs_page == 0) {
             {"TRACK LEVELS", "MUTE / SOLO", "GLOBAL / BPM", ""},
             {"SECTIONS A-D", "SAVE / LOAD", "", ""}
         };
-        cv_text(14, 67, &FONT_XS, labels[gs_page][gs_page_num], C_WHITE);
+        if (gs_page == 7 && gs_track == 2) {
+            uint16_t steps = gs_page_num == 1 ? gs_drum_voice.snare_steps[gs_drum_voice.pattern] :
+                gs_page_num == 2 ? gs_drum_voice.hat_steps[gs_drum_voice.pattern] :
+                gs_drum_voice.kick_steps[gs_drum_voice.pattern];
+            cv_text(14, 54, &FONT_XS, gs_page_num == 1 ? "SNARE" : gs_page_num == 2 ? "HAT" : "KICK", C_WHITE);
+            for (i=0;i<16;i++) {
+                uint16_t color = (steps & (1u<<i)) ? track_color[2] : C_LINE;
+                cv_rect(14+(int32_t)i*13, 77, 11, 11, color);
+            }
+        } else {
+            cv_text(14, 67, &FONT_XS, labels[gs_page][gs_page_num], C_WHITE);
+        }
         for (i = 0; i < 4; i++) {
             char val[12];
             int_text(gs_knobs[gs_track][gs_page][gs_page_num][i], val);
