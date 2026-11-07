@@ -1,0 +1,26 @@
+# GrooveScape fm1-base host simulator smoke test (BLE disabled)
+wait 600
+shot boot.png
+key 7 down
+wait 150
+expect note 60
+shot key.png
+key 7 up
+wait 50
+expect note -1
+tap OCT+
+wait 30
+expect octave 1
+midi 90 3C 64
+wait 100
+expect note 60
+wav pad.wav
+wait 3500
+wavstop
+expect peak_db_min -35
+midi 80 3C 00
+wait 50
+expect note -1
+tap FX
+wait 40
+shot pad-env.png
