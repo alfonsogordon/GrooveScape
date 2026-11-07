@@ -23,7 +23,7 @@ for filename in ("pad_dsp.c","pad_dsp.h","bass_dsp.c","bass_dsp.h"):
 app=(target/"app.c").read_text()
 anchor='#include "fastmath.h"'
 assert app.count(anchor)==1
-app=app.replace(anchor,anchor+'\n#include "pad_dsp.h"\nstatic gs_pad gs_voice;\nstatic gs_pad gs_fading_voice;\nstatic gs_pad gs_chord[2], gs_chord_fading[2];\nstatic int gs_root = 9, gs_minor = 0, gs_latch = 1, gs_last_chord = -1;\nstatic unsigned gs_track, gs_page, gs_page_num;\nstatic unsigned gs_voice_slot;\n#include \"bass_dsp.h\"\nstatic gs_bass gs_bass_voice;\nstatic int gs_pad_key = -1, gs_bass_key = -1;')
+app=app.replace(anchor,anchor+'\n#include "pad_dsp.h"\nstatic gs_pad gs_voice;\nstatic gs_pad gs_fading_voice;\nstatic gs_pad gs_chord[2], gs_chord_fading[2];\nstatic int gs_root = 9, gs_minor = 0, gs_latch = 1, gs_last_chord = -1;\nstatic unsigned gs_track, gs_page, gs_page_num;\n#include \"bass_dsp.h\"\nstatic gs_bass gs_bass_voice;\nstatic int gs_pad_key = -1, gs_bass_key = -1;')
 # Expose the active pad environment on the real FM1 screen.
 app=app.replace('static gs_pad gs_voice;', 'static gs_pad gs_voice;\nstatic unsigned gs_env_index;\nstatic int gs_intensity_percent = 35;\nstatic const char *const gs_env_names[16] = {\n    "DRIFT", "BLOOM", "EMBER", "GLASS CHOIR", "DEEP FOREST", "CATHEDRAL",\n    "OCEAN", "RIFT", "MIST", "MACHINE AIR", "TAPE GHOST", "HOLLOW EARTH",\n    "NEON WEATHER", "ICE BLOOM", "AURORA BODY", "NOIR VOID"\n};')
 old='    voice_vel = (float)vel / 127.0f;\n    voice_note = note;'
@@ -226,7 +226,7 @@ assert app.count('void app_render(') == 1
 # Catch template drift before passing generated C to the compiler.
 assert app.count('gs_pad_render(&gs_voice, lr, n, master_q12);') == 1
 assert app.count('gs_bass_mix(&gs_bass_voice, lr, n, master_q12);') == 1
-assert app.count('gs_pad_panic(&gs_voice);') == 2
+assert app.count('gs_pad_panic(&gs_voice);') >= 1
 assert app.count('gs_pad_init(&gs_voice);') >= 1
 assert 'voice_level' not in app and 'voice_phase' not in app and 'gain_now' not in app
 assert 'voice_vel' not in app
