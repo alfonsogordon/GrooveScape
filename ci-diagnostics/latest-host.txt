@@ -1,13 +1,42 @@
-Commit: c2da9c688869e6fdc07a0e318437b599574c67b7
+Commit: 8c60c7830d2f2b7a14145637178b698828e60ed5
 Host stage status: failure
-Run: 42422892403
+Run: 42422976829
 DSP test log (last 120 lines):
-DSP benchmark: 200 x 256 frames, CPU 357.87 ms, avg 1.789 ms/block, deadline 5.805 ms/block (host only)\nPASS: 44.1k stereo pad; peak=545890, wash tail=1824364774\nPASS: native bass, peak=1705858
+DSP benchmark: 200 x 256 frames, CPU 354.39 ms, avg 1.772 ms/block, deadline 5.805 ms/block (host only)\nPASS: 44.1k stereo pad; peak=545890, wash tail=1824364774\nPASS: native bass, peak=1705858
 Integration log (last 120 lines):
-Traceback (most recent call last):
-  File "/home/runner/work/GrooveScape/GrooveScape/scripts/integrate_pad.py", line 219, in <module>
-    assert app.count('gs_pad_panic(&gs_voice);') == 2
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError
+Generated /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape. Build with: /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/tools/build.py /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape --host
+BLE disabled; prototype ID. DO NOT FLASH hardware.
 Host build log (last 120 lines):
+In file included from /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/lib/touch.c:6,
+                 from /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/host/plat_host.c:1636:
+/home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/lib/sense.c: In function ‘sense_pressure’:
+/home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/lib/sense.c:228:33: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  228 |         rel = k->dland > k->d ? k->dland - k->d : 0u;
+      |                                 ^~~~~~~~~~~~~~~
+/home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/lib/sense.c:231:34: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  231 |         rel = k->v > k->floor_ ? k->v - k->floor_ : 0u;
+      |                                  ^~~~~~~~~~~~~~~~
+In file included from /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/host/plat_host.c:1641:
+/home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape/app.c: In function ‘app_init’:
+/home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape/app.c:157:34: error: stray ‘\’ in program
+  157 |     gs_bass_init(&gs_bass_voice);\n    gs_knobs[4][0][0] = 9; gs_knobs[4][0][1] = 0; gs_knobs[4][0][2] = 100;
+      |                                  ^
+/home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape/app.c:157:35: error: unknown type name ‘n’
+  157 |     gs_bass_init(&gs_bass_voice);\n    gs_knobs[4][0][0] = 9; gs_knobs[4][0][1] = 0; gs_knobs[4][0][2] = 100;
+      |                                   ^
+/home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape/app.c:157:60: error: invalid initializer
+  157 |     gs_bass_init(&gs_bass_voice);\n    gs_knobs[4][0][0] = 9; gs_knobs[4][0][1] = 0; gs_knobs[4][0][2] = 100;
+      |                                                            ^
+/home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape/app.c:157:40: warning: variable ‘gs_knobs’ set but not used [-Wunused-but-set-variable]
+  157 |     gs_bass_init(&gs_bass_voice);\n    gs_knobs[4][0][0] = 9; gs_knobs[4][0][1] = 0; gs_knobs[4][0][2] = 100;
+      |                                        ^~~~~~~~
+font T: BarlowSemiCondensed-SemiBold.ttf 10px h 12, digit adv 5, 3600 B
+font XS: BarlowSemiCondensed-SemiBold.ttf 12px h 15, digit adv 6, 7005 B
+font S: BarlowSemiCondensed-Medium.ttf 15px h 16, digit adv 7, 8576 B
+font B: BarlowSemiCondensed-Bold.ttf 15px h 16, digit adv 8, 8752 B
+font M: BarlowSemiCondensed-SemiBold.ttf 23px h 24, digit adv 12, 11832 B
+font L: BarlowSemiCondensed-Bold.ttf 31px h 32, digit adv 16, 19776 B
+font set barlow: 60782 B (approx)
+words: 3 own + 51 common -> /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape/web/words/95a41ce197.json (1059 B)
+build: the host simulator did not compile
 Host test log (last 120 lines):
