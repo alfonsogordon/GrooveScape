@@ -18,6 +18,12 @@ GrooveScape is an in-development M-VAVE FM1 groovebox project, combining ToneSca
 
 The [native host and browser workflow](https://github.com/alfonsogordon/GrooveScape/actions/workflows/native-host.yml) compiles the real fm1-base application, runs audio/UI checks and publishes the browser output to [`/native/`](https://alfonsogordon.github.io/GrooveScape/native/) **only after all tests pass**. The link may be unavailable until the first passing build and GitHub Pages deployment. The current native application includes **four basic audio tracks (ToneScape pad, bass, lead and drums)**, live drum triggers and quantized drum A/B transport, but many menu pages, presets and browser/hardware interactions remain incomplete. Host compilation is not hardware validation. Bluetooth is deliberately disabled, and no hardware firmware is approved for flashing.
 
+## Sound parity and real-time performance
+
+The ToneScape-inspired pad uses 16 named environments, stereo four-voice textures, slow envelopes, pitch glide and diffusion wash. Its current implementation is a **port/approximation**, not a proven sample-identical reproduction of the original Android ToneScape engine. Original-vs-GrooveScape audio captures at matched pitch, environment, intensity, attack/release and output level are still required for a meaningful listening and spectral comparison.
+
+The host CI now benchmarks eight simultaneous pad instances in addition to the single-voice test. On CI run 42479665200 the eight-pad stress test took **8.386 ms per 256 frames**, versus a **5.805 ms** 44.1 kHz block deadline on the CI host. This is a **real-time performance warning**, not proof of FM1 hardware underruns: the host and embedded CPUs differ. DSP optimization and target-device measurements are required before flashing.
+
 ## Run the browser prototype
 Open `index.html` in a modern browser or enable GitHub Pages with **Settings → Pages → Deploy from a branch → main → / (root)**. The prototype uses basic browser-generated sounds, **not** the actual ToneScape engine. It cannot flash the FM1.
 
