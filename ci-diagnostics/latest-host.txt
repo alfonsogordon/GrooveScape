@@ -1,22 +1,36 @@
-Commit: 9b77599009abbad4dbe2ceb76e9a11d6e1f00ded
-Host stage status: failure
-Run: 42504194890
+Commit: a717905b345f9b925a80d24d33d5c986a250c5f3
+Host stage status: success
+Run: 42504210655
 DSP test log (last 120 lines):
-tests/test_pad.c: In function ‘main’:
-tests/test_pad.c:7:146: error: stray ‘\’ in program
-    7 |  printf("Pad RAM: %zu bytes per instance, %zu bytes for eight instances (excluding stack and other tracks)\\n",sizeof(gs_pad),8u*sizeof(gs_pad));\n static gs_pad p;gs_pad_init(&p);if(p.texture_voices!=4){fprintf(stderr,"FAIL default texture quality\\n");return 9;}gs_pad_environment(&p,5,0.75f);gs_pad_note(&p,110.0f,1);
-      |                                                                                                                                                  ^
-tests/test_pad.c:7:147: error: ‘n’ undeclared (first use in this function)
-    7 |  printf("Pad RAM: %zu bytes per instance, %zu bytes for eight instances (excluding stack and other tracks)\\n",sizeof(gs_pad),8u*sizeof(gs_pad));\n static gs_pad p;gs_pad_init(&p);if(p.texture_voices!=4){fprintf(stderr,"FAIL default texture quality\\n");return 9;}gs_pad_environment(&p,5,0.75f);gs_pad_note(&p,110.0f,1);
-      |                                                                                                                                                   ^
-tests/test_pad.c:7:147: note: each undeclared identifier is reported only once for each function it appears in
-tests/test_pad.c:7:148: error: expected ‘;’ before ‘static’
-    7 |  printf("Pad RAM: %zu bytes per instance, %zu bytes for eight instances (excluding stack and other tracks)\\n",sizeof(gs_pad),8u*sizeof(gs_pad));\n static gs_pad p;gs_pad_init(&p);if(p.texture_voices!=4){fprintf(stderr,"FAIL default texture quality\\n");return 9;}gs_pad_environment(&p,5,0.75f);gs_pad_note(&p,110.0f,1);
-      |                                                                                                                                                    ^~~~~~~
-      |                                                                                                                                                    ;
-tests/test_pad.c:7:178: error: ‘p’ undeclared (first use in this function)
-    7 |  printf("Pad RAM: %zu bytes per instance, %zu bytes for eight instances (excluding stack and other tracks)\\n",sizeof(gs_pad),8u*sizeof(gs_pad));\n static gs_pad p;gs_pad_init(&p);if(p.texture_voices!=4){fprintf(stderr,"FAIL default texture quality\\n");return 9;}gs_pad_environment(&p,5,0.75f);gs_pad_note(&p,110.0f,1);
-      |                                                                                                                                                                                  ^
+Pad RAM: 35792 bytes per instance, 286336 bytes for eight instances (excluding stack and other tracks)\nDSP benchmark: 200 x 256 frames, CPU 355.96 ms, avg 1.780 ms/block, deadline 5.805 ms/block (host only)\nEight-pad stress benchmark: 13.513 ms per 256-frame block, deadline 5.805 ms (host CPU, diagnostic only)\nFour-pad benchmark: 6.693 ms per 256-frame block, deadline 5.805 ms (host CPU, diagnostic only)\nEight-pad 2-texture-voice benchmark: 6.733 ms/block (host diagnostic)\nFour-pad 2-texture-voice benchmark: 3.333 ms/block (host diagnostic)\nEight-pad 3-texture-voice benchmark: 10.375 ms/block (host diagnostic)\nFour-pad 3-texture-voice benchmark: 5.243 ms/block (host diagnostic)\nPASS: 44.1k stereo pad; peak=545890, wash tail=1824364774\nPASS: native bass, peak=1707230
+PASS: live drums, quantized start/A-B, immediate stop and panic
 Integration log (last 120 lines):
+Generated /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape. Build with: /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/tools/build.py /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape --host
+BLE disabled; prototype ID. DO NOT FLASH hardware.
 Host build log (last 120 lines):
+In file included from /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/lib/touch.c:6,
+                 from /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/host/plat_host.c:1636:
+/home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/lib/sense.c: In function ‘sense_pressure’:
+/home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/lib/sense.c:228:33: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  228 |         rel = k->dland > k->d ? k->dland - k->d : 0u;
+      |                                 ^~~~~~~~~~~~~~~
+/home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/lib/sense.c:231:34: warning: operand of ‘?:’ changes signedness from ‘int’ to ‘unsigned int’ due to unsignedness of other operand [-Wsign-compare]
+  231 |         rel = k->v > k->floor_ ? k->v - k->floor_ : 0u;
+      |                                  ^~~~~~~~~~~~~~~~
+font T: BarlowSemiCondensed-SemiBold.ttf 10px h 12, digit adv 5, 3600 B
+font XS: BarlowSemiCondensed-SemiBold.ttf 12px h 15, digit adv 6, 7005 B
+font S: BarlowSemiCondensed-Medium.ttf 15px h 16, digit adv 7, 8576 B
+font B: BarlowSemiCondensed-Bold.ttf 15px h 16, digit adv 8, 8752 B
+font M: BarlowSemiCondensed-SemiBold.ttf 23px h 24, digit adv 12, 11832 B
+font L: BarlowSemiCondensed-Bold.ttf 31px h 32, digit adv 16, 19776 B
+font set barlow: 60782 B (approx)
+words: 3 own + 51 common -> /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape/web/words/95a41ce197.json (1059 B)
+host     /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape/build/host/groovescape_host
 Host test log (last 120 lines):
+  ok note == 60
+  ok note == -1
+  ok octave == 1
+  ok note == 60
+  ok peak -34.4 dBFS (min -42)
+  ok note == -1
+host: 4948 ms simulated, 42 blits, render 16.8% of real time (host CPU)
