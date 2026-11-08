@@ -8,6 +8,7 @@ on:
       - 'tests/test_pad.c'
       - 'tests/render_pad_wav.c'
       - 'tests/test_bass.c'
+      - 'tests/test_drums.c'
       - 'tests/native_host.txt'
       - '.github/workflows/native-host.yml'
 permissions:
@@ -28,6 +29,8 @@ jobs:
             /tmp/gs-pad-test
             cc -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=undefined -fno-omit-frame-pointer tests/test_bass.c firmware/audio/bass_dsp.c -lm -o /tmp/gs-bass-test
             /tmp/gs-bass-test
+            cc -std=c11 -O2 -Wall -Wextra -Werror -fsanitize=undefined tests/test_drums.c firmware/audio/extra_dsp.c -lm -o /tmp/gs-drums-test
+            /tmp/gs-drums-test
           } 2>&1 | tee /tmp/groovescape-dsp-test.log
       - name: Render offline ToneScape listening preview
         run: |
