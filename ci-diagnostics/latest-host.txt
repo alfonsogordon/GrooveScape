@@ -1,8 +1,8 @@
-Commit: 5711fa77d95b2767aa9e7cfee41b063db8e2a2e6
+Commit: 473c5d66eecdfa7dab95d9d7943243e1b7fd8996
 Host stage status: success
-Run: 42490925162
+Run: 42495105321
 DSP test log (last 120 lines):
-DSP benchmark: 200 x 256 frames, CPU 280.38 ms, avg 1.402 ms/block, deadline 5.805 ms/block (host only)\nEight-pad stress benchmark: 10.616 ms per 256-frame block, deadline 5.805 ms (host CPU, diagnostic only)\nFour-pad benchmark: 5.192 ms per 256-frame block, deadline 5.805 ms (host CPU, diagnostic only)\nEight-pad 2-texture-voice benchmark: 5.208 ms/block (host diagnostic)\nFour-pad 2-texture-voice benchmark: 2.555 ms/block (host diagnostic)\nEight-pad 3-texture-voice benchmark: 8.058 ms/block (host diagnostic)\nFour-pad 3-texture-voice benchmark: 3.933 ms/block (host diagnostic)\nPASS: 44.1k stereo pad; peak=545890, wash tail=1824364774\nPASS: native bass, peak=1707230
+DSP benchmark: 200 x 256 frames, CPU 355.47 ms, avg 1.777 ms/block, deadline 5.805 ms/block (host only)\nEight-pad stress benchmark: 15.562 ms per 256-frame block, deadline 5.805 ms (host CPU, diagnostic only)\nFour-pad benchmark: 8.265 ms per 256-frame block, deadline 5.805 ms (host CPU, diagnostic only)\nEight-pad 2-texture-voice benchmark: 7.780 ms/block (host diagnostic)\nFour-pad 2-texture-voice benchmark: 4.149 ms/block (host diagnostic)\nEight-pad 3-texture-voice benchmark: 11.729 ms/block (host diagnostic)\nFour-pad 3-texture-voice benchmark: 6.275 ms/block (host diagnostic)\nPASS: 44.1k stereo pad; peak=545890, wash tail=1824364774\nPASS: native bass, peak=1707230
 PASS: live drums, quantized start/A-B, immediate stop and panic
 Integration log (last 120 lines):
 Generated /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape. Build with: /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/tools/build.py /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape --host
@@ -33,4 +33,4 @@ Host test log (last 120 lines):
   ok note == 60
   ok peak -34.4 dBFS (min -42)
   ok note == -1
-host: 4948 ms simulated, 42 blits, render 13.1% of real time (host CPU)
+host: 4948 ms simulated, 42 blits, render 16.7% of real time (host CPU)
