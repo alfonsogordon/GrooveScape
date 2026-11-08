@@ -22,11 +22,11 @@ int main(void) {
     for(unsigned i=0;i<50;i++)gs_drums_mix(&d,out,256,4096,120);
     assert(d.playing && d.pattern==1 && !d.queued_start);
     gs_drums_set_playing(&d,0,1);
-    assert(!d.playing);
+    assert(!d.playing && !d.queued_pattern);
     gs_drums_set_playing(&d,1,1);
     assert(d.queued_start && !d.playing);
     gs_drums_panic(&d);
-    assert(!d.clock_running && !d.playing && !d.queued_start);
+    assert(!d.clock_running && !d.playing && !d.queued_start && !d.queued_pattern);
     gs_drums_set_playing(&d,1,1);
     gs_drums_mix(&d,out,256,4096,120);
     assert(d.playing && d.step==0);
