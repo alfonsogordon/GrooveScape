@@ -1,8 +1,8 @@
-Commit: ee2232744ab1b68c6d4a69ee6f244a694e10fece
+Commit: 8d94414601ed1cd094259b6feb2af0b37460ce01
 Host stage status: success
-Run: 42476641069
+Run: 42476710044
 DSP test log (last 120 lines):
-DSP benchmark: 200 x 256 frames, CPU 280.83 ms, avg 1.404 ms/block, deadline 5.805 ms/block (host only)\nPASS: 44.1k stereo pad; peak=545890, wash tail=1824364774\nPASS: native bass, peak=1707230
+DSP benchmark: 200 x 256 frames, CPU 279.76 ms, avg 1.399 ms/block, deadline 5.805 ms/block (host only)\nPASS: 44.1k stereo pad; peak=545890, wash tail=1824364774\nPASS: native bass, peak=1707230
 PASS: live drums, quantized start/A-B, immediate stop and panic
 Integration log (last 120 lines):
 Generated /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape. Build with: /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/tools/build.py /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape --host
@@ -33,4 +33,4 @@ Host test log (last 120 lines):
   ok note == 60
   ok peak -34.4 dBFS (min -42)
   ok note == -1
-host: 4948 ms simulated, 42 blits, render 13.1% of real time (host CPU)
+host: 4948 ms simulated, 42 blits, render 13.3% of real time (host CPU)
