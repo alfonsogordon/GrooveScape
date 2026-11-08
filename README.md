@@ -22,12 +22,4 @@ The [native host and browser workflow](https://github.com/alfonsogordon/GrooveSc
 
 The ToneScape-inspired pad uses 16 named environments, stereo four-voice textures, slow envelopes, pitch glide and diffusion wash. Its current implementation is a **port/approximation**, not a proven sample-identical reproduction of the original Android ToneScape engine. Original-vs-GrooveScape audio captures at matched pitch, environment, intensity, attack/release and output level are still required for a meaningful listening and spectral comparison.
 
-The host CI now benchmarks eight simultaneous pad instances in addition to the single-voice test. On CI run 42479665200 the eight-pad stress test took **8.386 ms per 256 frames**, versus a **5.805 ms** 44.1 kHz block deadline on the CI host. This is a **real-time performance warning**, not proof of FM1 hardware underruns: the host and embedded CPUs differ. DSP optimization and target-device measurements are required before flashing.
-
-## Run the browser prototype
-Open `index.html` in a modern browser or enable GitHub Pages with **Settings → Pages → Deploy from a branch → main → / (root)**. The prototype uses basic browser-generated sounds, **not** the actual ToneScape engine. It cannot flash the FM1.
-
-## Sources and licensing
-Potential references include [ToneScape](https://github.com/alfonsogordon/ToneScape), [SLOOP-BT](https://github.com/alfonsogordon/sloop-BT) and [Hortator](https://github.com/DeadActive/hortator). Hortator's SMC implementation is GPL-3.0-only; code reuse requires license compliance. No third-party firmware source has yet been copied into this repository.
-
-**Do not flash any experimental firmware to hardware until verified.**
+The host CI now benchmarks eight simultaneous pad instances, four-pad configurations, and selectable two-, three-, and four-texture-voice settings. Each `gs_pad` occupies **35,792 bytes** on the host: eight instances require **286,336 bytes (~280 KiB)** and four require **143,168 bytes (~140 KiB)**, excluding bass, drums, lead, firmware, stack, and Bluetooth. In run 42504359202, four pads with three texture voices took **3.917 ms per 256-frame block**, while eight pads with four texture voices took **10.605 ms**; the 44.1 kHz block deadline is **5.805 ms**. CI host timings vary between runs, and no full-mix/embedded benchmark or free-memory measurement has been completed. Bluetooth support remains unimplemented and is not yet proven to fit.\n\nThe earlier eight-pad test is retained as a stress diagnostic.
