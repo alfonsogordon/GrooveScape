@@ -4,7 +4,8 @@
 #include <stdint.h>
 #include <time.h>
 int main(void){
- printf("Pad RAM: %zu bytes per instance, %zu bytes for eight instances (excluding stack and other tracks)\\n",sizeof(gs_pad),8u*sizeof(gs_pad));\n static gs_pad p;gs_pad_init(&p);if(p.texture_voices!=4){fprintf(stderr,"FAIL default texture quality\\n");return 9;}gs_pad_environment(&p,5,0.75f);gs_pad_note(&p,110.0f,1);
+ printf("Pad RAM: %zu bytes per instance, %zu bytes for eight instances (excluding stack and other tracks)\\n",sizeof(gs_pad),8u*sizeof(gs_pad));
+ static gs_pad p;gs_pad_init(&p);if(p.texture_voices!=4){fprintf(stderr,"FAIL default texture quality\\n");return 9;}gs_pad_environment(&p,5,0.75f);gs_pad_note(&p,110.0f,1);
  int32_t buffer[512];int64_t energy=0;int32_t peak=0;
  for(unsigned block=0;block<600;block++){
   gs_pad_render(&p,buffer,256,4096);
