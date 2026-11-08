@@ -22,11 +22,11 @@ void gs_drums_clock_start(gs_drums *d){
     if(!d->clock_running){d->clock_running=1;d->beat_pos=0.f;d->step=15u;}
 }
 void gs_drums_panic(gs_drums *d){
-    d->playing=0;d->queued_start=0;d->clock_running=0;
+    d->playing=0;d->queued_start=0;d->queued_pattern=0;d->clock_running=0;
     d->kick=0.f;d->snare=0.f;d->hat=0.f;d->beat_pos=0.f;d->step=15u;
 }
 void gs_drums_set_playing(gs_drums *d,int playing,int quantized){
-    if(!playing){d->playing=0;d->queued_start=0;return;}
+    if(!playing){d->playing=0;d->queued_start=0;d->queued_pattern=0;return;}
     if(d->playing || d->queued_start)return;
     if(quantized && d->clock_running && d->step!=15u){d->queued_start=1;return;}
     d->playing=1;d->queued_start=0;
