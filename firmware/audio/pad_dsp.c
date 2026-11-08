@@ -74,14 +74,20 @@ void gs_pad_environment(gs_pad *p,unsigned environment,float intensity){p->envir
 void gs_pad_render(gs_pad *p,int32_t *lr,uint32_t frames,uint32_t master_q12){
  const float *s=spec[p->environment%16u];
  const float master=gs_clampf((float)master_q12/4096.0f,0.0f,1.0f);
+ /* Block-invariant coefficients: preserve the same sample-by-sample sound. */
+ const float glide_rate=1.0f/(GS_SR*gs_clampf(p->glide_sec,0.01f,30.0f));
+ const float envelope_rate=1.0f/(GS_SR*(p->gate?gs_clampf(p->attack_sec,0.02f,30.0f):gs_clampf(p->release_sec,0.02f,40.0f)));
+ const float scale=GS_OUTPUT*master*1.15f;
+ static const float ratios[4]={0.997f,1.0f,1.003f,0.5f};
+ static const float pans[4]={-0.72f,0.64f,-0.27f,0.32f};
+ float pan_l[4],pan_r[4];
+ for(unsigned v=0;v<4;v++){pan_l[v]=sqrtf(.5f*(1.0f-pans[v]));pan_r[v]=sqrtf(.5f*(1.0f+pans[v]));}
  for(uint32_t n=0;n<frames;n++){
-  p->hz += (p->target_hz-p->hz)/(GS_SR*gs_clampf(p->glide_sec,0.01f,30.0f));
-  float rate=p->gate?1.0f/(GS_SR*gs_clampf(p->attack_sec,0.02f,30.0f)):1.0f/(GS_SR*gs_clampf(p->release_sec,0.02f,40.0f));
+  p->hz += (p->target_hz-p->hz)*glide_rate;
+  float rate=envelope_rate;
   p->env+=((p->gate?1.0f:0.0f)-p->env)*rate;
   /* Independent slowly detuned ToneScape-style voices, spread in stereo.
    * Keep modulation per voice instead of multiplying a single mono oscillator. */
-  static const float ratios[4]={0.997f,1.0f,1.003f,0.5f};
-  static const float pans[4]={-0.72f,0.64f,-0.27f,0.32f};
   float left=0.0f,right=0.0f;
   if (p->gate || p->env > 0.00005f) {
   for(unsigned v=0;v<4;v++){
@@ -95,9 +101,8 @@ void gs_pad_render(gs_pad *p,int32_t *lr,uint32_t frames,uint32_t master_q12){
       then applies soft texture shaping before its stereo processing. */
    sample+=.040f*s[1]*sinf(ph*5.0f+seed)+.026f*s[0]*sinf(ph*.5f);
    sample=gs_soft(sample,1.08f);
-   float pan=pans[v];
-   left+=sample*sqrtf(.5f*(1.0f-pan));
-   right+=sample*sqrtf(.5f*(1.0f+pan));
+   left+=sample*pan_l[v];
+   right+=sample*pan_r[v];
    ph+=GS_PI2*p->hz*ratios[v]/GS_SR;
    if(ph>=GS_PI2)ph-=GS_PI2;
    p->voice_phase[v]=ph;
@@ -117,7 +122,6 @@ void gs_pad_render(gs_pad *p,int32_t *lr,uint32_t frames,uint32_t master_q12){
   p->wash_r[p->wash_pos_r]=gs_clampf(dry_r+wet_r*.71f+wet_l*.11f,-1.0f,1.0f);
   if(++p->wash_pos_l==4093u)p->wash_pos_l=0;
   if(++p->wash_pos_r==4787u)p->wash_pos_r=0;
-  float scale=GS_OUTPUT*master*1.15f;
   float out_l=gs_clampf((dry_l+wet_l*.32f)*scale,-8388607.0f,8388607.0f);
   float out_r=gs_clampf((dry_r+wet_r*.32f)*scale,-8388607.0f,8388607.0f);
   lr[2u*n]=(int32_t)out_l;
