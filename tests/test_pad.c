@@ -116,5 +116,22 @@ int main(void){
  }
 
 
+ /* Exercise the real saturating pad mixer, not just separate render calls.
+    The renderer is the first layer; seven layers are added via gs_pad_mix. */
+ for(unsigned v=0;v<8;v++)ensemble[v].texture_voices=3;
+ clock_t mixed_start=clock();
+ for(unsigned b=0;b<30;b++){
+  gs_pad_render(&ensemble[0],buffer,256,3072);
+  for(unsigned v=1;v<8;v++)gs_pad_mix(&ensemble[v],buffer,256,3072);
+  for(unsigned i=0;i<512;i++){
+   if(buffer[i]>8388607||buffer[i]<-8388608){
+    fprintf(stderr,"FAIL eight-pad mix range\\n");return 10;
+   }
+  }
+ }
+ double mixed_ms=1000.0*(double)(clock()-mixed_start)/CLOCKS_PER_SEC/30.0;
+ printf("Actual eight-pad mix (3 texture voices): %.3f ms/block (host diagnostic)\\n",mixed_ms);
+
+
  printf("PASS: 44.1k stereo pad; peak=%d, wash tail=%lld\\n",peak,(long long)tail_energy);return 0;
 }
