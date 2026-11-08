@@ -126,7 +126,7 @@ assert app.count(old)==1
 app=app.replace(old,'    voice_note = -1;\n    gs_pad_key = -1; gs_bass_key = -1;\n    gs_pad_panic(&gs_voice);\n    gs_pad_panic(&gs_fading_voice);\n    gs_pad_panic(&gs_melody); gs_pad_panic(&gs_melody_fading);\n    for (int i=0;i<2;i++) { gs_pad_panic(&gs_chord[i]); gs_pad_panic(&gs_chord_fading[i]); }\n    gs_last_chord = -1;\n    gs_bass_panic(&gs_bass_voice);\n    gs_lead_note(&gs_lead_voice, 0, 0); gs_drums_panic(&gs_drum_voice);')
 old='void app_init(void)\n{'
 assert app.count(old)==1
-app=app.replace(old,'void app_init(void)\n{\n    gs_pad_init(&gs_voice);\n    gs_pad_init(&gs_fading_voice);\n    gs_pad_init(&gs_melody); gs_pad_init(&gs_melody_fading);\n    for (int i=0;i<2;i++) { gs_pad_init(&gs_chord[i]); gs_pad_init(&gs_chord_fading[i]); }\n    gs_bass_init(&gs_bass_voice);\n    gs_lead_init(&gs_lead_voice); gs_drums_init(&gs_drum_voice);')
+app=app.replace(old,'void app_init(void)\n{\n    /* Nonzero mixer defaults: otherwise all four tracks are silent. */\n    for (int track=0;track<4;track++) gs_knobs[track][8][0][0] = 75;\n    gs_knobs[0][5][0][1] = 100; /* Four texture voices by default. */\n    gs_pad_init(&gs_voice);\n    gs_pad_init(&gs_fading_voice);\n    gs_pad_init(&gs_melody); gs_pad_init(&gs_melody_fading);\n    for (int i=0;i<2;i++) { gs_pad_init(&gs_chord[i]); gs_pad_init(&gs_chord_fading[i]); }\n    gs_bass_init(&gs_bass_voice);\n    gs_lead_init(&gs_lead_voice); gs_drums_init(&gs_drum_voice);')
 # Physical keyboard: white notes, black chord triggers, last black latch.
 app=app.replace('            note_on(note, v);', '''            if (gs_track == 2) {
                 if (gs_page != 7) {
