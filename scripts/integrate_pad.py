@@ -265,6 +265,15 @@ app=app.replace(old_encoder, '''        } else if (k == EN_SELECT) {
                         for(int n=0;n<8;n++) pads[n]->glide_sec = glide * (1.f + depth);
                     }
                 }
+                if (gs_page == 1 && gs_page_num == 0 && gs_track == 0 && knob < 2) {
+                    /* ENV edits also apply to the melody tail, not just active chord pads. */
+                    gs_melody_fading.attack_sec = gs_melody.attack_sec;
+                    gs_melody_fading.release_sec = gs_melody.release_sec;
+                }
+                if (gs_page == 5 && gs_page_num == 0 && gs_track == 3 && knob == 1) {
+                    /* Lead page K2 adjusts pitch brightness independently of K1. */
+                    gs_lead_voice.brightness = (float)*v / 100.0f;
+                }
                 if (gs_page == 8 && gs_page_num == 1) {
                     if (knob == 0) gs_track_mute[gs_track] = *v >= 50;
                     if (knob == 1) gs_track_solo[gs_track] = *v >= 50;
