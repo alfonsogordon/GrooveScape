@@ -1,8 +1,8 @@
-Commit: 0c7f787b855636060479a17705bb5a2f3522bc98
+Commit: fb48dba9d764ccf3446623f27a62504c3ce46497
 Host stage status: success
-Run: 42504359202
+Run: 42504677706
 DSP test log (last 120 lines):
-Pad RAM: 35792 bytes per instance, 143168 bytes for four instances, 286336 bytes for eight instances (excluding stack and other tracks)\nDSP benchmark: 200 x 256 frames, CPU 280.10 ms, avg 1.400 ms/block, deadline 5.805 ms/block (host only)\nEight-pad stress benchmark: 10.605 ms per 256-frame block, deadline 5.805 ms (host CPU, diagnostic only)\nFour-pad benchmark: 5.209 ms per 256-frame block, deadline 5.805 ms (host CPU, diagnostic only)\nEight-pad 2-texture-voice benchmark: 5.202 ms/block (host diagnostic)\nFour-pad 2-texture-voice benchmark: 2.570 ms/block (host diagnostic)\nEight-pad 3-texture-voice benchmark: 8.004 ms/block (host diagnostic)\nFour-pad 3-texture-voice benchmark: 3.917 ms/block (host diagnostic)\nPASS: 44.1k stereo pad; peak=545890, wash tail=1824364774\nPASS: native bass, peak=1707230
+Pad RAM: 35792 bytes per instance, 143168 bytes for four instances, 286336 bytes for eight instances (excluding stack and other tracks)\nDSP benchmark: 200 x 256 frames, CPU 279.96 ms, avg 1.400 ms/block, deadline 5.805 ms/block (host only)\nEight-pad stress benchmark: 10.615 ms per 256-frame block, deadline 5.805 ms (host CPU, diagnostic only)\nFour-pad benchmark: 5.193 ms per 256-frame block, deadline 5.805 ms (host CPU, diagnostic only)\nEight-pad 2-texture-voice benchmark: 5.231 ms/block (host diagnostic)\nFour-pad 2-texture-voice benchmark: 2.557 ms/block (host diagnostic)\nEight-pad 3-texture-voice benchmark: 8.007 ms/block (host diagnostic)\nFour-pad 3-texture-voice benchmark: 3.940 ms/block (host diagnostic)\nActual eight-pad mix (3 texture voices): 8.018 ms/block (host diagnostic)\nPASS: 44.1k stereo pad; peak=545890, wash tail=1824364774\nPASS: native bass, peak=1707230
 PASS: live drums, quantized start/A-B, immediate stop and panic
 Integration log (last 120 lines):
 Generated /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape. Build with: /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/tools/build.py /home/runner/work/GrooveScape/GrooveScape/.work/fm1-base/groovescape --host
