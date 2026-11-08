@@ -139,8 +139,8 @@ app=app.replace('            note_on(note, v);', '''            if (gs_track == 
                     else if (gs_page == 7 && gs_page_num == 2) gs_drum_voice.hat_steps[gs_drum_voice.pattern] ^= bit;
                     else gs_drum_voice.kick_steps[gs_drum_voice.pattern] ^= bit;
                     app_say("DRUM STEP", "TOGGLE");
-                } else if (k == 16) { gs_drums_set_playing(&gs_drum_voice, !gs_drum_voice.playing, 1); app_say("DRUMS", gs_drum_voice.playing ? "PLAY" : "STOP"); }
-                else if (k == 17) { gs_drums_set_pattern(&gs_drum_voice, gs_drum_voice.pattern ^ 1u, 1); app_say("PATTERN", gs_drum_voice.pattern ? "B" : "A"); }
+                } else if (k == 16) { gs_drums_set_playing(&gs_drum_voice, !(gs_drum_voice.playing || gs_drum_voice.queued_start), 1); app_say("DRUMS", gs_drum_voice.queued_start ? "QUEUED" : gs_drum_voice.playing ? "PLAY" : "STOP"); }
+                else if (k == 17) { gs_drums_set_pattern(&gs_drum_voice, gs_drum_voice.queued_pattern ? (unsigned)(gs_drum_voice.queued_pattern - 1u) ^ 1u : gs_drum_voice.pattern ^ 1u, 1); app_say("PATTERN", gs_drum_voice.queued_pattern ? "NEXT BAR" : gs_drum_voice.pattern ? "B" : "A"); }
                 else if (k == 18) { gs_drum_voice.fill ^= 1u; app_say("FILL", gs_drum_voice.fill ? "ON" : "OFF"); }
                 else if (k == 19) { gs_drum_voice.mute ^= 1u; app_say("DRUM MUTE", gs_drum_voice.mute ? "ON" : "OFF"); }
             } else {
