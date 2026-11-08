@@ -239,6 +239,13 @@ app=app.replace(old_encoder, '''        } else if (k == EN_SELECT) {
                     if (knob == 2) gs_latch = *v >= 50;
                     gs_last_chord = -1;
                 }
+                if (gs_track == 0 && gs_page == 5 && gs_page_num == 0 && knob == 1) {
+                    /* EDIT K2: selectable 2/3/4 texture voices per pad.
+                       Default stays four until explicitly changed. */
+                    unsigned voices = *v < 34 ? 2u : (*v < 67 ? 3u : 4u);
+                    gs_pad *pads[8] = {&gs_voice,&gs_fading_voice,&gs_melody,&gs_melody_fading,&gs_chord[0],&gs_chord[1],&gs_chord_fading[0],&gs_chord_fading[1]};
+                    for (int n=0;n<8;n++) pads[n]->texture_voices = (uint8_t)voices;
+                }
                 if (gs_track == 0 && gs_page == 5 && gs_page_num == 0 && knob == 0) {
                     gs_env_index = (unsigned)*v % 16u;
                     gs_pad_environment(&gs_voice, gs_env_index, (float)gs_intensity_percent/100.0f);
@@ -305,6 +312,13 @@ app=app.replace('            app_say("TONESCAPE INT", t);', '''            app_s
                     if (knob == 1) gs_minor = *v % 2;
                     if (knob == 2) gs_latch = *v >= 50;
                     gs_last_chord = -1;
+                }
+                if (gs_track == 0 && gs_page == 5 && gs_page_num == 0 && knob == 1) {
+                    /* EDIT K2: selectable 2/3/4 texture voices per pad.
+                       Default stays four until explicitly changed. */
+                    unsigned voices = *v < 34 ? 2u : (*v < 67 ? 3u : 4u);
+                    gs_pad *pads[8] = {&gs_voice,&gs_fading_voice,&gs_melody,&gs_melody_fading,&gs_chord[0],&gs_chord[1],&gs_chord_fading[0],&gs_chord_fading[1]};
+                    for (int n=0;n<8;n++) pads[n]->texture_voices = (uint8_t)voices;
                 }
                 if (gs_track == 0 && gs_page == 5 && gs_page_num == 0 && knob == 0) {
                     gs_env_index = (unsigned)(*v) % 16u;
