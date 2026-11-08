@@ -18,6 +18,25 @@ float sparkle=sinf(TAU*p->phase*4.01f)*(.10f+.25f*p->brightness);
 float out=(sh*.5f+sparkle)*p->env*master*950000.f;add(lr,i,out);
 }}
 void gs_drums_init(gs_drums *d){memset(d,0,sizeof *d);d->rng=0xC017A12u;d->kick=0.8f;d->snare=0.4f;d->hat=.0f;d->kick=0.f;d->snare=0.f;d->kick_steps[0]=0x0101u;d->snare_steps[0]=0x1010u;d->hat_steps[0]=0x4444u;d->kick_steps[1]=0x0101u;d->snare_steps[1]=0x0100u;d->hat_steps[1]=0x0404u;}
+void gs_drums_clock_start(gs_drums *d){
+    if(!d->clock_running){d->clock_running=1;d->beat_pos=0.f;d->step=15u;}
+}
+void gs_drums_panic(gs_drums *d){
+    d->playing=0;d->queued_start=0;d->clock_running=0;
+    d->kick=0.f;d->snare=0.f;d->hat=0.f;d->beat_pos=0.f;d->step=15u;
+}
+void gs_drums_set_playing(gs_drums *d,int playing,int quantized){
+    if(!playing){d->playing=0;d->queued_start=0;return;}
+    if(d->playing || d->queued_start)return;
+    if(quantized && d->clock_running && d->step!=15u){d->queued_start=1;return;}
+    d->playing=1;d->queued_start=0;
+    if(!d->clock_running)gs_drums_clock_start(d);
+}
+void gs_drums_set_pattern(gs_drums *d,unsigned pattern,int quantized){
+    uint8_t next=(uint8_t)(pattern&1u);
+    if(quantized && d->playing && d->step!=15u){d->queued_pattern=(uint8_t)(next+1u);return;}
+    d->pattern=next;d->queued_pattern=0;
+}
 void gs_drums_hit(gs_drums *d,unsigned instrument,float velocity){
 float v=cl(velocity,0.f,1.f);
 switch(instrument%4u){case 0:d->kick=v;break;case 1:d->snare=v;break;case 2:d->hat=v;break;default:d->snare=v*.5f;d->hat=v*.6f;break;}
@@ -25,14 +44,19 @@ switch(instrument%4u){case 0:d->kick=v;break;case 1:d->snare=v;break;case 2:d->h
 void gs_drums_mix(gs_drums *d,int32_t *lr,uint32_t n,uint32_t gain,int bpm){
 float master=cl((float)gain/4096.f,0,1);if(bpm<30)bpm=30;if(bpm>300)bpm=300;
 for(uint32_t i=0;i<n;i++){
-if(d->playing){d->beat_pos+=(float)bpm/(60.f*SR)*4.f;
+if(d->clock_running){d->beat_pos+=(float)bpm/(60.f*SR)*4.f;
 if(d->beat_pos>=1.f){d->beat_pos-=1.f;d->step=(d->step+1u)&15u;
+if(d->step==0u){
+    if(d->queued_pattern){d->pattern=(uint8_t)(d->queued_pattern-1u);d->queued_pattern=0;}
+    if(d->queued_start){d->playing=1;d->queued_start=0;}
+}
+if(d->playing){
 uint16_t bit=(uint16_t)(1u<<d->step);
 if(d->kick_steps[d->pattern]&bit)d->kick=1.f;
 if(d->snare_steps[d->pattern]&bit)d->snare=.8f;
 if(d->hat_steps[d->pattern]&bit)d->hat=.4f;
 if(d->fill && (d->step&1u))d->snare=.55f;
-}}
+}}}
 d->phase+= (48.f+95.f*d->kick*d->kick)/SR;if(d->phase>=1)d->phase-=1;
 d->rng^=d->rng<<13;d->rng^=d->rng>>17;d->rng^=d->rng<<5;
 float noise=(float)((int32_t)d->rng)/2147483648.f;
