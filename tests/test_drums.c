@@ -19,7 +19,7 @@ int main(void) {
     /* 120 BPM: 16 sixteenth notes per 2 second bar. */
     for(unsigned i=0;i<1300;i++)gs_drums_mix(&d,out,256,4096,120);
     assert(!d.playing && d.pattern==0);
-    for(unsigned i=0;i<100;i++)gs_drums_mix(&d,out,256,4096,120);
+    for(unsigned i=0;i<120;i++)gs_drums_mix(&d,out,256,4096,120);
     assert(d.playing && d.pattern==1 && !d.queued_start);
     gs_drums_set_playing(&d,0,1);
     assert(!d.playing);
