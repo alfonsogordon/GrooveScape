@@ -48,16 +48,14 @@ app=app.replace(old,'''    voice_note = note;
         }
         if (gs_last_chord == notes[0] && gs_latch) return;
         gs_last_chord = notes[0];
-        gs_pad tmp = gs_fading_voice; gs_fading_voice = gs_voice; gs_voice = tmp;
+        /* Release the previous chord, then retune the sustained chord voices.
+           Avoid copying multi-kilobyte reverb buffers on the UI thread. */
+        gs_pad_note(&gs_voice, 0.0f, 0);
         gs_pad_note(&gs_fading_voice, 0.0f, 0);
-        for (int i=0;i<2;i++) {
-            gs_pad swap = gs_chord_fading[i];
-            gs_chord_fading[i] = gs_chord[i]; gs_chord[i] = swap;
-            gs_pad_note(&gs_chord_fading[i], 0.0f, 0);
-        }
+        for (int i=0;i<2;i++) gs_pad_note(&gs_chord[i], 0.0f, 0);
         gs_pad *active[3] = {&gs_voice, &gs_chord[0], &gs_chord[1]};
         for (int i=0;i<3;i++) {
-            gs_pad_panic(active[i]);
+            /* Retain the envelope and wash so chord changes glide smoothly. */
             gs_pad_environment(active[i], gs_env_index, (float)gs_intensity_percent/100.0f);
             gs_pad_note(active[i], 440.0f*fm_exp2f((float)(notes[i]-69)/12.0f), 1);
         }
