@@ -78,5 +78,19 @@ int main(void){
  clock_t bench_end=clock();
  double elapsed_ms=1000.0*(double)(bench_end-bench_start)/CLOCKS_PER_SEC;
  printf("DSP benchmark: 200 x 256 frames, CPU %.2f ms, avg %.3f ms/block, deadline 5.805 ms/block (host only)\\n",elapsed_ms,elapsed_ms/200.0);
+ /* Real GrooveScape can mix eight independent ToneScape pad instances.
+    Benchmark the worst-case concurrent pad load rather than a single voice. */
+ static gs_pad ensemble[8];
+ for(unsigned v=0;v<8;v++){
+  gs_pad_init(&ensemble[v]);
+  gs_pad_environment(&ensemble[v],v,0.75f);
+  gs_pad_note(&ensemble[v],110.0f+(float)v*27.5f,1);
+ }
+ clock_t ensemble_start=clock();
+ for(unsigned b=0;b<40;b++){
+  for(unsigned v=0;v<8;v++)gs_pad_render(&ensemble[v],buffer,256,4096);
+ }
+ double ensemble_ms=1000.0*(double)(clock()-ensemble_start)/CLOCKS_PER_SEC/40.0;
+ printf("Eight-pad stress benchmark: %.3f ms per 256-frame block, deadline 5.805 ms (host CPU, diagnostic only)\\n",ensemble_ms);
  printf("PASS: 44.1k stereo pad; peak=%d, wash tail=%lld\\n",peak,(long long)tail_energy);return 0;
 }
