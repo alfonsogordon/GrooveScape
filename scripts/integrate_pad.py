@@ -122,7 +122,7 @@ app=app[:start]+'''void app_render(int32_t *lr, uint32_t n, uint32_t master_q12)
 '''+app[end:]
 old='    voice_note = -1;\n    voice_level = 0.0f;'
 assert app.count(old)==1
-app=app.replace(old,'    voice_note = -1;\n    gs_pad_key = -1; gs_bass_key = -1;\n    gs_pad_panic(&gs_voice);\n    gs_pad_panic(&gs_fading_voice);\n    gs_pad_panic(&gs_melody); gs_pad_panic(&gs_melody_fading);\n    for (int i=0;i<2;i++) { gs_pad_panic(&gs_chord[i]); gs_pad_panic(&gs_chord_fading[i]); }\n    gs_last_chord = -1;\n    gs_bass_panic(&gs_bass_voice);\n    gs_lead_note(&gs_lead_voice, 0, 0); gs_drum_voice.playing = 0;')
+app=app.replace(old,'    voice_note = -1;\n    gs_pad_key = -1; gs_bass_key = -1;\n    gs_pad_panic(&gs_voice);\n    gs_pad_panic(&gs_fading_voice);\n    gs_pad_panic(&gs_melody); gs_pad_panic(&gs_melody_fading);\n    for (int i=0;i<2;i++) { gs_pad_panic(&gs_chord[i]); gs_pad_panic(&gs_chord_fading[i]); }\n    gs_last_chord = -1;\n    gs_bass_panic(&gs_bass_voice);\n    gs_lead_note(&gs_lead_voice, 0, 0); gs_drums_panic(&gs_drum_voice);')
 old='void app_init(void)\n{'
 assert app.count(old)==1
 app=app.replace(old,'void app_init(void)\n{\n    gs_pad_init(&gs_voice);\n    gs_pad_init(&gs_fading_voice);\n    gs_pad_init(&gs_melody); gs_pad_init(&gs_melody_fading);\n    for (int i=0;i<2;i++) { gs_pad_init(&gs_chord[i]); gs_pad_init(&gs_chord_fading[i]); }\n    gs_bass_init(&gs_bass_voice);\n    gs_lead_init(&gs_lead_voice); gs_drums_init(&gs_drum_voice);')
@@ -138,8 +138,8 @@ app=app.replace('            note_on(note, v);', '''            if (gs_track == 
                     else if (gs_page == 7 && gs_page_num == 2) gs_drum_voice.hat_steps[gs_drum_voice.pattern] ^= bit;
                     else gs_drum_voice.kick_steps[gs_drum_voice.pattern] ^= bit;
                     app_say("DRUM STEP", "TOGGLE");
-                } else if (k == 16) { gs_drum_voice.playing = !gs_drum_voice.playing; app_say("DRUMS", gs_drum_voice.playing ? "PLAY" : "STOP"); }
-                else if (k == 17) { gs_drum_voice.pattern ^= 1u; app_say("PATTERN", gs_drum_voice.pattern ? "B" : "A"); }
+                } else if (k == 16) { gs_drums_set_playing(&gs_drum_voice, !gs_drum_voice.playing, 1); app_say("DRUMS", gs_drum_voice.playing ? "PLAY" : "STOP"); }
+                else if (k == 17) { gs_drums_set_pattern(&gs_drum_voice, gs_drum_voice.pattern ^ 1u, 1); app_say("PATTERN", gs_drum_voice.pattern ? "B" : "A"); }
                 else if (k == 18) { gs_drum_voice.fill ^= 1u; app_say("FILL", gs_drum_voice.fill ? "ON" : "OFF"); }
                 else if (k == 19) { gs_drum_voice.mute ^= 1u; app_say("DRUM MUTE", gs_drum_voice.mute ? "ON" : "OFF"); }
             } else {
@@ -244,8 +244,8 @@ app=app.replace(old_encoder, '''        } else if (k == EN_SELECT) {
                 }
                 if (gs_track == 0 && gs_page == 1 && gs_page_num == 0 && knob < 2) {
                     float seconds = 0.1f + (float)*v * (knob == 0 ? .299f : .399f);
-                    gs_pad *pads[7] = {&gs_voice,&gs_fading_voice,&gs_melody,&gs_chord[0],&gs_chord[1],&gs_chord_fading[0],&gs_chord_fading[1]};
-                    for (int n=0;n<7;n++) {
+                    gs_pad *pads[8] = {&gs_voice,&gs_fading_voice,&gs_melody,&gs_melody_fading,&gs_chord[0],&gs_chord[1],&gs_chord_fading[0],&gs_chord_fading[1]};
+                    for (int n=0;n<8;n++) {
                         if (knob == 0) pads[n]->attack_sec = seconds;
                         else pads[n]->release_sec = seconds;
                     }
@@ -253,7 +253,7 @@ app=app.replace(old_encoder, '''        } else if (k == EN_SELECT) {
                 if (gs_page == 5 && gs_page_num == 0) {
                     if (gs_track == 3 && knob == 0) gs_lead_voice.brightness = (float)*v/100.0f;
                     if (gs_track == 1 && knob == 0) gs_bass_voice.cutoff = 0.015f + (float)*v*0.003f;
-                    if (gs_track == 2 && knob == 0) gs_drum_voice.pattern = (uint8_t)(*v >= 50);
+                    if (gs_track == 2 && knob == 0) gs_drums_set_pattern(&gs_drum_voice, (unsigned)(*v >= 50), 1);
                 }
                 if (gs_track == 0 && gs_page == 2 && gs_page_num == 0) {
                     /* Motion page: gentle pitch drift rate (K1) and depth (K2). */
@@ -268,7 +268,7 @@ app=app.replace(old_encoder, '''        } else if (k == EN_SELECT) {
                     if (knob == 0) gs_track_mute[gs_track] = *v >= 50;
                     if (knob == 1) gs_track_solo[gs_track] = *v >= 50;
                 }
-                if (gs_page == 7 && gs_track == 2 && knob == 0) gs_drum_voice.playing = *v >= 50;
+                if (gs_page == 7 && gs_track == 2 && knob == 0) gs_drums_set_playing(&gs_drum_voice, *v >= 50, 1);
                 int_text(*v, t); app_say("PARAM", t);
             }
         } else {
