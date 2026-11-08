@@ -30,7 +30,7 @@ void gs_drums_set_playing(gs_drums *d,int playing,int quantized){
     if(d->playing || d->queued_start)return;
     if(quantized && d->clock_running && d->step!=15u){d->queued_start=1;return;}
     d->playing=1;d->queued_start=0;
-    if(!d->clock_running)gs_drums_clock_start(d);
+    if(!d->clock_running){gs_drums_clock_start(d);d->beat_pos=1.f;}
 }
 void gs_drums_set_pattern(gs_drums *d,unsigned pattern,int quantized){
     uint8_t next=(uint8_t)(pattern&1u);
