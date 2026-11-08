@@ -75,11 +75,8 @@ app=app.replace(old,'''    voice_note = note;
         /* Preserve the previous melody as a fading voice rather than retuning
            an audible oscillator. Fresh melody fades in organically. */
         if (gs_melody.gate && gs_melody.target_hz != 440.0f*fm_exp2f((float)(locked-69)/12.0f)) {
-            gs_pad tmp = gs_melody_fading;
-            gs_melody_fading = gs_melody;
-            gs_melody = tmp;
-            gs_pad_note(&gs_melody_fading, 0.0f, 0);
-            gs_pad_panic(&gs_melody);
+            /* Sustain the existing pad envelope and glide its oscillator
+               toward the next scale-locked note without resetting reverb. */
             gs_pad_environment(&gs_melody, gs_env_index, (float)gs_intensity_percent/100.0f);
         }
         gs_pad_note(&gs_melody, 440.0f*fm_exp2f((float)(locked-69)/12.0f), 1);\n    } else if (gs_track == 2) {\n        gs_drums_hit(&gs_drum_voice, (unsigned)(note >= 36 ? note - 36 : note), (float)vel / 127.0f);\n    } else if (gs_track == 3) {\n        gs_lead_note(&gs_lead_voice, 440.0f*fm_exp2f((float)(note-69)/12.0f), 1);\n    } else if (gs_track == 1) {
