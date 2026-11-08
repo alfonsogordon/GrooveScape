@@ -106,6 +106,12 @@ int main(void){
   }
   double quality_ms=1000.0*(double)(clock()-quality_start)/CLOCKS_PER_SEC/40.0;
   printf("Eight-pad %u-texture-voice benchmark: %.3f ms/block (host diagnostic)\\n",quality,quality_ms);
+  clock_t compact_start=clock();
+  for(unsigned b=0;b<40;b++){
+   for(unsigned v=0;v<4;v++)gs_pad_render(&ensemble[v],buffer,256,4096);
+  }
+  double compact_ms=1000.0*(double)(clock()-compact_start)/CLOCKS_PER_SEC/40.0;
+  printf("Four-pad %u-texture-voice benchmark: %.3f ms/block (host diagnostic)\\n",quality,compact_ms);
  }
 
 
