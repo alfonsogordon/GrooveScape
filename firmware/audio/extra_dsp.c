@@ -34,7 +34,7 @@ void gs_drums_set_playing(gs_drums *d,int playing,int quantized){
 }
 void gs_drums_set_pattern(gs_drums *d,unsigned pattern,int quantized){
     uint8_t next=(uint8_t)(pattern&1u);
-    if(quantized && d->playing && d->step!=15u){d->queued_pattern=(uint8_t)(next+1u);return;}
+    if(quantized && (d->playing || d->queued_start) && d->step!=15u){d->queued_pattern=(uint8_t)(next+1u);return;}
     d->pattern=next;d->queued_pattern=0;
 }
 void gs_drums_hit(gs_drums *d,unsigned instrument,float velocity){
