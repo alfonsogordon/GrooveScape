@@ -92,5 +92,12 @@ int main(void){
  }
  double ensemble_ms=1000.0*(double)(clock()-ensemble_start)/CLOCKS_PER_SEC/40.0;
  printf("Eight-pad stress benchmark: %.3f ms per 256-frame block, deadline 5.805 ms (host CPU, diagnostic only)\\n",ensemble_ms);
+ clock_t four_start=clock();
+ for(unsigned b=0;b<40;b++){
+  for(unsigned v=0;v<4;v++)gs_pad_render(&ensemble[v],buffer,256,4096);
+ }
+ double four_ms=1000.0*(double)(clock()-four_start)/CLOCKS_PER_SEC/40.0;
+ printf("Four-pad benchmark: %.3f ms per 256-frame block, deadline 5.805 ms (host CPU, diagnostic only)\\n",four_ms);
+
  printf("PASS: 44.1k stereo pad; peak=%d, wash tail=%lld\\n",peak,(long long)tail_energy);return 0;
 }
