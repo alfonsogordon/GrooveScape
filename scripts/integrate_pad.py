@@ -29,6 +29,7 @@ app=app.replace('static gs_pad gs_voice;', 'static gs_pad gs_voice;\nstatic unsi
 old='    voice_vel = (float)vel / 127.0f;\n    voice_note = note;'
 assert app.count(old)==1
 app=app.replace(old,'''    voice_note = note;
+    gs_drums_clock_start(&gs_drum_voice);
     if (gs_track == 0 && gs_chord_select) {
         static const int major_steps[7] = {0,2,4,5,7,9,11};
         static const int minor_steps[7] = {0,2,3,5,7,8,10};
