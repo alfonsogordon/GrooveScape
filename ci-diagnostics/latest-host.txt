@@ -1,10 +1,10 @@
-Commit: 815a507e0de0fc209bad9634571c0a9fde542d7e
+Commit: 5a9b43033a72023cd022fd8936065bf3c23a3ef0
 Host stage status: failure
-Run: 42474420054
+Run: 42474486073
 DSP test log (last 120 lines):
-DSP benchmark: 200 x 256 frames, CPU 232.52 ms, avg 1.163 ms/block, deadline 5.805 ms/block (host only)\nPASS: 44.1k stereo pad; peak=545890, wash tail=1824364774\nPASS: native bass, peak=1707230
-gs-drums-test: tests/test_drums.c:15: main: Assertion `d.queued_start && !d.playing' failed.
-/home/runner/work/_temp/fba3b6d4-939b-4daf-8cd0-a7569af36de1.sh: line 9:  2137 Aborted                 (core dumped) /tmp/gs-drums-test
+DSP benchmark: 200 x 256 frames, CPU 333.31 ms, avg 1.667 ms/block, deadline 5.805 ms/block (host only)\nPASS: 44.1k stereo pad; peak=545890, wash tail=1824364774\nPASS: native bass, peak=1707230
+gs-drums-test: tests/test_drums.c:18: main: Assertion `d.pattern==0 && d.queued_pattern==2' failed.
+/home/runner/work/_temp/5a7bd46e-f87b-4db3-bc73-87795b0173e2.sh: line 9:  2142 Aborted                 (core dumped) /tmp/gs-drums-test
 Integration log (last 120 lines):
 Host build log (last 120 lines):
 Host test log (last 120 lines):
