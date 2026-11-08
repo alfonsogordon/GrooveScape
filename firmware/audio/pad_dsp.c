@@ -78,6 +78,7 @@ void gs_pad_render(gs_pad *p,int32_t *lr,uint32_t frames,uint32_t master_q12){
  const float glide_rate=1.0f/(GS_SR*gs_clampf(p->glide_sec,0.01f,30.0f));
  const float envelope_rate=1.0f/(GS_SR*(p->gate?gs_clampf(p->attack_sec,0.02f,30.0f):gs_clampf(p->release_sec,0.02f,40.0f)));
  const float scale=GS_OUTPUT*master*1.15f;
+ const unsigned active_voices=(p->texture_voices>=2 && p->texture_voices<=4) ? p->texture_voices : 4u;
  static const float ratios[4]={0.997f,1.0f,1.003f,0.5f};
  static const float pans[4]={-0.72f,0.64f,-0.27f,0.32f};
  float pan_l[4],pan_r[4];
@@ -90,7 +91,7 @@ void gs_pad_render(gs_pad *p,int32_t *lr,uint32_t frames,uint32_t master_q12){
    * Keep modulation per voice instead of multiplying a single mono oscillator. */
   float left=0.0f,right=0.0f;
   if (p->gate || p->env > 0.00005f) {
-  for(unsigned v=0;v<(p->texture_voices>=2 && p->texture_voices<=4 ? p->texture_voices : 4);v++){
+  for(unsigned v=0;v<active_voices;v++){
    float ph=p->voice_phase[v];
    float lfo=p->voice_lfo[v];
    float motion=.003f*sinf(lfo);
