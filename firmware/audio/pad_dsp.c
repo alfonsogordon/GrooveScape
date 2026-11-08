@@ -59,7 +59,7 @@ static float gs_texture(float phase,const float *s,float intensity,float seed,co
  return gs_soft(x,.92f+t*.95f+s[4]*t*.85f)*.82f;
 }
 static float gs_clampf(float x,float lo,float hi){return x<lo?lo:(x>hi?hi:x);}
-void gs_pad_init(gs_pad *p){memset(p,0,sizeof *p);p->hz=110.0f;p->target_hz=110.0f;p->glide_sec=3.0f;p->attack_sec=4.0f;p->release_sec=8.0f;gs_pad_environment(p,0,0.5f);}
+void gs_pad_init(gs_pad *p){memset(p,0,sizeof *p);p->hz=110.0f;p->target_hz=110.0f;p->glide_sec=3.0f;p->attack_sec=4.0f;p->release_sec=8.0f;p->texture_voices=4;gs_pad_environment(p,0,0.5f);}
 void gs_pad_note(gs_pad *p,float hz,int gate){if(gate && isfinite(hz)){p->target_hz=gs_clampf(hz,30.0f,1500.0f);if(p->env<0.00001f)p->hz=p->target_hz;}p->gate=(uint8_t)(gate!=0);}
 void gs_pad_panic(gs_pad *p){p->gate=0;p->env=0.0f;memset(p->wash_l,0,sizeof p->wash_l);memset(p->wash_r,0,sizeof p->wash_r);p->wash_pos_l=0;p->wash_pos_r=0;}
 void gs_pad_environment(gs_pad *p,unsigned environment,float intensity){p->environment=(uint8_t)(environment%16u);p->intensity=isfinite(intensity)?gs_clampf(intensity,0.0f,1.0f):0.5f;
@@ -90,7 +90,7 @@ void gs_pad_render(gs_pad *p,int32_t *lr,uint32_t frames,uint32_t master_q12){
    * Keep modulation per voice instead of multiplying a single mono oscillator. */
   float left=0.0f,right=0.0f;
   if (p->gate || p->env > 0.00005f) {
-  for(unsigned v=0;v<4;v++){
+  for(unsigned v=0;v<(p->texture_voices>=2 && p->texture_voices<=4 ? p->texture_voices : 4);v++){
    float ph=p->voice_phase[v];
    float lfo=p->voice_lfo[v];
    float motion=.003f*sinf(lfo);
